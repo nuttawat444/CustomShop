@@ -166,6 +166,7 @@
 .bike-builder-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; padding: 1rem; }
 .bike-builder-summary img { width: min(100%, 15rem); aspect-ratio: 3/2; object-fit: cover; border-radius: .7rem; }
 .bike-builder-summary > div { flex: 1 1 16rem; }
+.bike-builder-actions { justify-content: flex-end; }
 .bike-builder-row { display: grid; grid-template-columns: minmax(12rem, 1fr) minmax(12rem, 1.7fr) 6rem; gap: .9rem; align-items: center; border-top: 1px solid var(--dash-line); padding: .9rem 1rem; }
 .bike-builder-part { display: flex; align-items: center; gap: .65rem; min-width: 0; }
 .bike-builder-part h3 { font-size: .96rem; margin: 0 0 .25rem; }
