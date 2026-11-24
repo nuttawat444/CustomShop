@@ -596,9 +596,9 @@
 
     @foreach (var shelf in new[]
     {
-        (Kind: "Bike", Title: "รถคัสตอมจากสตูดิโอ", Action: "CustomBike"),
-        (Kind: "Product", Title: "อะไหล่และหมวกกันน็อก", Action: "Product"),
-        (Kind: "Package", Title: "โปรโมชัน", Action: "Promotion")
+        (Kind: "Bike", Title: "รถคัสตอมจากสตูดิโอ"),
+        (Kind: "Product", Title: "อะไหล่และหมวกกันน็อก"),
+        (Kind: "Package", Title: "โปรโมชัน")
     })
     {
         var items = Model.Items.Where(item => item.Kind == shelf.Kind).ToList();
@@ -609,11 +609,15 @@
                 @foreach (var item in items)
                 {
                     <article class="style-card">
-                        <div class="style-img-wrap"><img src="@Url.Content("~/images/shop/" + item.Image)" alt="@item.Name" loading="lazy" /></div>
+                        <button type="button" class="style-img-wrap catalog-preview-image" data-bs-toggle="modal" data-bs-target="#catalog-preview"
+                                data-catalog-preview="@item.Id" aria-haspopup="dialog" aria-label="ดูรายละเอียด @item.Name">
+                            <img src="@Url.Content("~/images/shop/" + item.Image)" alt="" loading="lazy" />
+                        </button>
                         <div class="style-body">
                             <h3>@item.Name</h3>
                             @if (!string.IsNullOrWhiteSpace(item.Description)) { <p>@item.Description</p> }
-                            <a class="style-link" asp-controller="Home" asp-action="@shelf.Action">ดูรายละเอียด@(item.Price > 0 ? $" · ฿{item.Price:N2}" : "")</a>
+                            <button type="button" class="style-link catalog-preview-link" data-bs-toggle="modal" data-bs-target="#catalog-preview"
+                                    data-catalog-preview="@item.Id" aria-haspopup="dialog">ดูรายละเอียด@(item.Price > 0 ? $" · ฿{item.Price:N2}" : "")</button>
                         </div>
                     </article>
                 }
@@ -661,3 +665,5 @@
     </div>
 
 </main>
+
+<partial name="_CatalogPreview" model="Model.Items" />

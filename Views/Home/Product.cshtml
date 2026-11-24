@@ -424,9 +424,11 @@
 {
     var stock = Model.Stock[item.Id].ToList();
     <article class="item-card" data-category="@item.Category">
-        <div class="item-art"><img src="@Url.Content("~/images/shop/" + item.Image)" alt="@item.Name" class="item-img" loading="lazy" />
+        <button type="button" class="item-art catalog-preview-image" data-bs-toggle="modal" data-bs-target="#catalog-preview"
+                data-catalog-preview="@item.Id" aria-haspopup="dialog" aria-label="ดูรายละเอียด @item.Name">
+            <img src="@Url.Content("~/images/shop/" + item.Image)" alt="" class="item-img" loading="lazy" />
             @if (item.Category == "helmet") { <span class="image-caption">ภาพจำลอง</span> }
-        </div>
+        </button>
         <div class="item-body">
             <span class="item-category">@PartCategoryLabels.Label(item.Category)</span><h3 class="item-title">@item.Name</h3>
             <p class="item-desc">@item.Description</p>
@@ -452,6 +454,8 @@
 }
 </section>
 </section>
+
+<partial name="_CatalogPreview" model="Model.Items" />
 
 @section Scripts {
     <script>

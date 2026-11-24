@@ -6,3 +6,80 @@
 .commerce input, .commerce select, .commerce textarea { max-width: 100%; padding: .45rem; background: var(--theme-raised); color: var(--theme-ink); border: 1px solid var(--theme-control-border); border-radius: .4rem; }
 .commerce button, .btn-detail { padding: .5rem 1rem; background: var(--theme-accent-bg); color: var(--theme-on-accent); border: 0; border-radius: .45rem; cursor: pointer; }
 .commerce [role=alert] { color: var(--theme-error); }
+.catalog-preview-image {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    cursor: zoom-in;
+}
+
+.catalog-preview-image::after {
+    content: "⤢";
+    position: absolute;
+    inset-block-start: .55rem;
+    inset-inline-end: .55rem;
+    display: grid;
+    place-items: center;
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 50%;
+    background: #181410cc;
+    color: white;
+    font: 1.1rem/1 system-ui, sans-serif;
+    pointer-events: none;
+}
+
+.catalog-preview-image:focus-visible {
+    outline: 3px solid var(--theme-accent);
+    outline-offset: -4px;
+}
+
+.catalog-preview-link {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    text-align: start;
+}
+
+.catalog-preview {
+    --bs-modal-bg: var(--theme-surface);
+    --bs-modal-color: var(--theme-ink);
+    --bs-modal-border-color: var(--theme-line);
+    --bs-modal-header-border-color: var(--theme-line);
+    --bs-modal-border-radius: 1rem;
+}
+
+.catalog-preview .modal-header { align-items: start; gap: .75rem; }
+.catalog-preview .modal-title { font: 650 clamp(1.25rem, 3vw, 1.75rem)/1.35 "Fraunces", Georgia, serif; overflow-wrap: anywhere; }
+
+.catalog-preview-close {
+    flex: 0 0 2.5rem;
+    margin-inline-start: auto;
+    min-height: 2.5rem;
+    border: 1px solid var(--theme-line);
+    border-radius: 50%;
+    background: var(--theme-raised);
+    color: var(--theme-ink);
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.catalog-preview-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+.catalog-preview-media { margin: 0; overflow: hidden; border-radius: .7rem; background: var(--theme-raised); }
+.catalog-preview-media img { display: block; width: 100%; max-height: 56vh; object-fit: contain; }
+.catalog-preview-media figcaption { padding: .4rem .7rem; color: var(--theme-muted); font-size: .82rem; }
+.catalog-preview-copy { min-width: 0; overflow-wrap: anywhere; }
+.catalog-preview-category { margin-bottom: .35rem; color: var(--theme-accent); font-size: .8rem; font-weight: 700; }
+.catalog-preview-price { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem .65rem; font-variant-numeric: tabular-nums; }
+.catalog-preview-price strong { font-size: 1.3rem; }
+.catalog-preview-price :is(del, span) { color: var(--theme-muted); }
+.catalog-preview-description { white-space: pre-line; color: var(--theme-muted); }
+.catalog-preview-copy h3 { font-size: 1rem; }
+.catalog-preview-copy ul { margin: 0; padding-inline-start: 1.25rem; }
+
+@media (max-width: 767.98px) {
+    .catalog-preview-grid { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+    .catalog-preview-media img { max-height: 40vh; }
+}

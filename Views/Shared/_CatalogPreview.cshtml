@@ -1,0 +1,59 @@
+@model IEnumerable<CatalogItem>
+
+<div class="modal fade catalog-preview" id="catalog-preview" tabindex="-1" aria-labelledby="catalog-preview-title" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="catalog-preview-title"></h2>
+                <button class="catalog-preview-close" type="button" data-bs-dismiss="modal" aria-label="ปิดรายละเอียด">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body"></div>
+        </div>
+    </div>
+</div>
+
+@foreach (var item in Model)
+{
+    var features = item.Features.Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+    <template id="catalog-preview-item-@item.Id" data-title="@item.Name">
+        <div class="catalog-preview-grid">
+            <figure class="catalog-preview-media">
+                <img src="@Url.Content("~/images/shop/" + item.Image)" alt="@item.Name" />
+                @if (item.Kind == "Product" && item.Category == "helmet")
+                {
+                    <figcaption>ภาพจำลอง</figcaption>
+                }
+            </figure>
+            <div class="catalog-preview-copy">
+                @if (!string.IsNullOrWhiteSpace(item.Category))
+                {
+                    <p class="catalog-preview-category">@item.Category</p>
+                }
+                @if (item.Price > 0)
+                {
+                    <p class="catalog-preview-price">
+                        @if (item.Kind == "Bike") { <span>ราคาเริ่มต้น</span> }
+                        @if (item.OriginalPrice > item.Price) { <del aria-label="ราคาเดิม ฿@item.OriginalPrice.ToString("N2")">฿@item.OriginalPrice.ToString("N2")</del> }
+                        <strong>฿@item.Price.ToString("N2")</strong>
+                    </p>
+                }
+                @if (!string.IsNullOrWhiteSpace(item.Description))
+                {
+                    <p class="catalog-preview-description">@item.Description</p>
+                }
+                @if (features.Length > 0)
+                {
+                    <h3>รายละเอียด</h3>
+                    <ul>
+                        @foreach (var feature in features)
+                        {
+                            <li>@feature</li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </template>
+}

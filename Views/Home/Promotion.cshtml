@@ -506,7 +506,11 @@
 @foreach (var deal in Model.Items)
 {
     var stock = Model.Stock[deal.Id].SingleOrDefault(item => item.Unit == StoreSaleRules.ReadyBikeUnit && item.Size == "");
-    <article class="deal-card"><div class="deal-img-wrap"><img class="deal-img" src="@Url.Content("~/images/shop/" + deal.Image)" alt="@deal.Name" loading="lazy" /></div>
+    <article class="deal-card">
+        <button type="button" class="deal-img-wrap catalog-preview-image" data-bs-toggle="modal" data-bs-target="#catalog-preview"
+                data-catalog-preview="@deal.Id" aria-haspopup="dialog" aria-label="ดูรายละเอียด @deal.Name">
+            <img class="deal-img" src="@Url.Content("~/images/shop/" + deal.Image)" alt="" loading="lazy" />
+        </button>
         <div class="deal-body"><span class="deal-category">@deal.Category</span><h3 class="deal-title">@deal.Name</h3>
             <p class="deal-desc">@deal.Description</p>
             <ul class="deal-features">@foreach (var feature in deal.Features.Split('\n', StringSplitOptions.RemoveEmptyEntries)){ <li>@feature</li> }</ul>
@@ -554,5 +558,6 @@
         </div>
     </section>
 
-    <!-- Toast Notification -->
 </section>
+
+<partial name="_CatalogPreview" model="Model.Items" />
