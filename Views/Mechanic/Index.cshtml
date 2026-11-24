@@ -13,7 +13,7 @@
         <div class="dash-metric"><dt>รออะไหล่ชิ้นส่วน</dt><dd>@Model.WaitingPartsCount รายการ</dd></div>
     </dl>
     <section class="dash-panel" aria-labelledby="Mechanic-list">
-        <header class="dash-panel-heading"><h2 id="Mechanic-list">ใบงานที่ฉันรับผิดชอบ</h2><p>@Model.JobOrders.Count รายการ</p></header>
+        <header class="dash-panel-heading"><h2 id="Mechanic-list" lang="en">Update Work</h2><p>@Model.JobOrders.Count รายการ</p></header>
         @if (Model.JobOrders.Count == 0) { <p class="dash-empty">ยังไม่มีงานที่ได้รับมอบหมาย</p> }
         else
         {
@@ -22,7 +22,6 @@
                 <thead>
                     <tr>
                         <th scope="col">ใบงาน / รุ่นรถ</th>
-                        <th scope="col">สไตล์คัสตอม</th>
                         <th scope="col">รายละเอียดงาน</th>
                         <th scope="col">ช่างผู้รับผิดชอบ</th>
                         <th scope="col">ความคืบหน้า</th>
@@ -34,7 +33,6 @@
                     {
                         <tr>
                             <th scope="row"><span class="dash-project-name" title="@job.BikeModel">@job.BikeModel</span><span class="dash-code" title="@job.JobTicketNo">@(job.JobTicketNo.Length > 16 ? job.JobTicketNo[..12] + "…" : job.JobTicketNo)</span></th>
-                            <td><span class="dash-status">@job.CustomStyle</span></td>
                             <td>@job.ServiceType</td>
                             <td>@job.AssignedMechanic</td>
                             <td><span class="dash-status" title="@job.Status">@job.Status</span><div class="dash-progress"><progress value="@job.ProgressPercent" max="100" aria-label="ความคืบหน้า"></progress><span>@job.ProgressPercent%</span></div></td>

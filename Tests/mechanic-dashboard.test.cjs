@@ -28,3 +28,14 @@ test("the mechanic app creates work through assignment without reading or writin
     assert.match(service, /new MechanicJob/);
     assert.match(service, /new JobAssignee/);
 });
+
+test("Update Work has five aligned columns and omits custom style", () => {
+    const view = read("Views/Mechanic/Index.cshtml");
+    const tableHead = view.match(/<thead>([\s\S]*?)<\/thead>/)?.[1];
+    const tableBody = view.match(/<tbody>([\s\S]*?)<\/tbody>/)?.[1];
+
+    assert.match(view, /<h2 id="Mechanic-list"(?:\s+[^>]*)?>Update Work<\/h2>/);
+    assert.doesNotMatch(view, /สไตล์คัสตอม|job\.CustomStyle/);
+    assert.equal((tableHead?.match(/<th\b/g) ?? []).length, 5);
+    assert.equal((tableBody?.match(/<t[dh]\b/g) ?? []).length, 5);
+});
