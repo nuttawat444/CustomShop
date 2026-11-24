@@ -65,8 +65,7 @@ public sealed class QuoteWorkService(Csi402dbContext db, QuoteEstimateService es
                 ProjectCode = project.ProjectCode,
                 BikeModel = project.ProjectName,
                 ServiceType = project.ProjectName,
-                ProgressPercent = project.ProgressPercentage,
-                Priority = "Normal"
+                ProgressPercent = project.ProgressPercentage
             };
             db.Jobs.Add(job);
         }

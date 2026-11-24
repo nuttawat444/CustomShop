@@ -227,8 +227,6 @@ public class MechanicJob
     public string ServiceType { get; set; } = string.Empty;
     [MaxLength(220)]
     public string AssignedMechanic { get; set; } = string.Empty;
-    [MaxLength(20)]
-    public string Priority { get; set; } = string.Empty;
     [MaxLength(100)]
     public string Status { get; set; } = string.Empty;
     public int ProgressPercent { get; set; }

@@ -146,7 +146,7 @@ CREATE TABLE IF NOT EXISTS shop_jobs (
     CustomStyle VARCHAR(100) NOT NULL,
     ServiceType VARCHAR(500) NOT NULL,
     AssignedMechanic VARCHAR(220) NOT NULL,
-    Priority VARCHAR(20) NOT NULL,
+    Priority VARCHAR(20) NOT NULL DEFAULT '',
     Status VARCHAR(100) NOT NULL,
     ProgressPercent INT NOT NULL,
     CompletedAt DATETIME(6) NULL,
