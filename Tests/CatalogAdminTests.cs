@@ -84,4 +84,26 @@ public class CatalogAdminTests
 
         Assert.Equal(new[] { 3, 2, 1 }, selected);
     }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(4)]
+    [InlineData(8)]
+    [InlineData(9)]
+    public void HomeShelvesSplitBikesWithoutDroppingOrRepeatingPins(int bikeCount)
+    {
+        var bikes = Enumerable.Range(1, bikeCount).Reverse()
+            .Select(id => new CatalogItem { Id = id, Kind = "Bike" }).ToArray();
+        CatalogItem[] ordered = [new() { Id = 20, Kind = "Product" }, .. bikes, new() { Id = 21, Kind = "Package" }];
+
+        var shelves = HomeCatalogSelection.Shelves(ordered);
+
+        Assert.Equal(bikes.Select(item => item.Id),
+            shelves.SelectMany(shelf => shelf.Items).Where(item => item.Kind == "Bike").Select(item => item.Id));
+        Assert.Equal(Math.Min(bikeCount, 4), shelves.SingleOrDefault(shelf => shelf.Key == "studio-bikes")?.Items.Count ?? 0);
+        Assert.Equal(Math.Max(0, bikeCount - 4), shelves.SingleOrDefault(shelf => shelf.Key == "recommended-bikes")?.Items.Count ?? 0);
+        Assert.Equal(bikeCount > 4 ? "recommended-bikes" : "promotions", shelves.Last().Key);
+        Assert.Equal(20, shelves.Single(shelf => shelf.Key == "parts").Items.Single().Id);
+        Assert.Equal(21, shelves.Single(shelf => shelf.Key == "promotions").Items.Single().Id);
+    }
 }

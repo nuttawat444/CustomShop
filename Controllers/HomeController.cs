@@ -11,7 +11,11 @@ namespace Nuttawat_7324_L002.Controllers;
 public class HomeController(Csi402dbContext db) : Controller
 {
     [Authorize(Policy = ShopAccess.Storefront)]
-    public async Task<IActionResult> Index() => View(await CatalogPageAsync(null));
+    public async Task<IActionResult> Index()
+    {
+        var items = await HomeCatalogSelection.Items(db.Catalog.AsNoTracking(), db.HomePins.AsNoTracking()).ToListAsync();
+        return View(new HomePageViewModel { Shelves = HomeCatalogSelection.Shelves(items) });
+    }
 
     [Authorize(Policy = ShopAccess.CustomBikes)]
     public async Task<IActionResult> CustomBike() => View(await CatalogPageAsync("Bike"));
@@ -22,12 +26,10 @@ public class HomeController(Csi402dbContext db) : Controller
     [Authorize(Policy = ShopAccess.Storefront)]
     public async Task<IActionResult> Promotion() => View(await CatalogPageAsync("Package"));
 
-    private async Task<CatalogPage> CatalogPageAsync(string? kind)
+    private async Task<CatalogPage> CatalogPageAsync(string kind)
     {
         var catalog = db.Catalog.AsNoTracking();
-        var items = kind is null
-            ? await HomeCatalogSelection.Items(catalog, db.HomePins.AsNoTracking()).ToListAsync()
-            : await catalog.Where(item => item.Active && item.Kind == kind).OrderBy(item => item.Id).ToListAsync();
+        var items = await catalog.Where(item => item.Active && item.Kind == kind).OrderBy(item => item.Id).ToListAsync();
         var stock = kind is "Product" or "Package"
             ? await (from sku in db.Stock.AsNoTracking()
                      join item in catalog on sku.CatalogItemId equals item.Id

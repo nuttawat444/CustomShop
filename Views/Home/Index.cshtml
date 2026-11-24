@@ -1,4 +1,4 @@
-@model CatalogPage
+@model HomePageViewModel
 @{
     ViewData["Title"] = "CustomShop - ศูนย์รวมมอเตอร์ไซค์คัสตอมวินเทจ";
     Layout = "_LayoutUser";
@@ -132,26 +132,11 @@
         flex-wrap: wrap;
     }
 
-    .section-eyebrow {
-        color: var(--brand-accent);
-        font-size: 0.82rem;
-        font-weight: 700;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        margin: 0 0 6px;
-    }
-
     .section-title {
         margin: 0;
         font-family: "Fraunces", Georgia, serif;
         font-size: clamp(1.8rem, 3.8vw, 2.3rem);
         color: var(--theme-ink);
-    }
-
-    .section-desc {
-        margin: 6px 0 0;
-        color: var(--theme-muted);
-        font-size: 0.95rem;
     }
 
     /* ===== BIKE STYLES SHOWCASE (4 CARDS) ===== */
@@ -374,72 +359,23 @@
         font-weight: 600;
     }
 
-    /* ===== PROCESS STEPS (4 COLUMNS) ===== */
-    .process-section {
-        margin-top: 50px;
-        padding: 40px;
-        border-radius: 24px;
-        background: var(--theme-raised);
-        border: 1px solid #eae5df;
-    }
-
-    .process-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 24px;
-        margin-top: 30px;
-    }
-
-    .process-step {
-        position: relative;
-    }
-
-    .step-number {
-        font-family: 'Fraunces', serif;
-        font-size: 2.2rem;
-        font-weight: 700;
-        color: var(--brand-accent);
-        line-height: 1;
-        margin-bottom: 8px;
-    }
-
-    .step-title {
-        font-family: 'Fraunces', serif;
-        font-size: 1.15rem;
-        color: var(--theme-ink);
-        margin: 0 0 6px;
-    }
-
-    .step-desc {
-        font-size: 0.85rem;
-        color: var(--theme-muted);
-        line-height: 1.55;
-        margin: 0;
-    }
-
     /* ===== RESPONSIVE ===== */
     @@media (max-width: 1024px) {
         .styles-grid,
-        .parts-grid,
-        .process-grid {
+        .parts-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
     }
 
     @@media (max-width: 640px) {
         .styles-grid,
-        .parts-grid,
-        .process-grid {
+        .parts-grid {
             grid-template-columns: 1fr;
         }
 
         .shop-hero {
             padding: 30px 20px;
             border-radius: 20px;
-        }
-
-        .process-section {
-            padding: 24px 18px;
         }
     }
 
@@ -594,19 +530,12 @@
     </section>
 
 
-    @foreach (var shelf in new[]
+    @foreach (var shelf in Model.Shelves)
     {
-        (Kind: "Bike", Title: "รถคัสตอมจากสตูดิโอ"),
-        (Kind: "Product", Title: "อะไหล่และหมวกกันน็อก"),
-        (Kind: "Package", Title: "โปรโมชัน")
-    })
-    {
-        var items = Model.Items.Where(item => item.Kind == shelf.Kind).ToList();
-        if (items.Count == 0) { continue; }
-        <section class="shop-section">
-            <h2 class="section-title">@shelf.Title</h2>
+        <section class="shop-section" aria-labelledby="@shelf.Key">
+            <h2 class="section-title mb-3" id="@shelf.Key">@shelf.Title</h2>
             <div class="styles-grid">
-                @foreach (var item in items)
+                @foreach (var item in shelf.Items)
                 {
                     <article class="style-card">
                         <button type="button" class="style-img-wrap catalog-preview-image" data-bs-toggle="modal" data-bs-target="#catalog-preview"
@@ -624,46 +553,6 @@
             </div>
         </section>
     }
-    <!-- SECTION: CRAFTSMANSHIP PROCESS -->
-    <div class="process-section">
-        <div style="text-align: center; max-width: 600px; margin: 0 auto;">
-            <p class="section-eyebrow">OUR CRAFTSMANSHIP</p>
-            <h2 class="section-title">4 ขั้นตอนการสร้างรถคัสตอมในฝัน</h2>
-            <p class="section-desc">โปร่งใส ตรวจสอบความคืบหน้าได้ทุกสเต็ป พร้อมให้คุณร่วมออกแบบเคียงข้างทีมช่าง</p>
-        </div>
-
-        <div class="process-grid">
-            <div class="process-step">
-                <div class="step-number">01</div>
-                <h4 class="step-title">ปรึกษา & สเก็ตช์ 3D</h4>
-                <p class="step-desc">
-                    พูดคุยแนวทาง กำหนดงบประมาณ และขึ้นแบบ 3D จำลองทรงรถก่อนเริ่มงานจริง
-                </p>
-            </div>
-            <div class="process-step">
-                <div class="step-number">02</div>
-                <h4 class="step-title">ดัดแปลงเฟรม & ทรง</h4>
-                <p class="step-desc">
-                    ตัดต่อท้าย ซ่อนสายไฟ ย้ายแบตเตอรี่ และจัดระนาบบาลานซ์ตัวรถให้สมดุล
-                </p>
-            </div>
-            <div class="process-step">
-                <div class="step-number">03</div>
-                <h4 class="step-title">งานสี & เบาะแฮนด์เมด</h4>
-                <p class="step-desc">
-                    พ่นสี 2K อบความร้อน เคาะชิ้นส่วน และเย็บเบาะหนังแท้คุณภาพเกรดสะสม
-                </p>
-            </div>
-            <div class="process-step">
-                <div class="step-number">04</div>
-                <h4 class="step-title">จูน Dyno & ส่งมอบ</h4>
-                <p class="step-desc">
-                    ทดสอบวิ่งบนแท่นไดโน่ ปรับจูนไฟและคาร์บูเรเตอร์ ตรวจเช็คความปลอดภัย 50 จุด
-                </p>
-            </div>
-        </div>
-    </div>
-
 </main>
 
-<partial name="_CatalogPreview" model="Model.Items" />
+<partial name="_CatalogPreview" model="Model.Shelves.SelectMany(shelf => shelf.Items)" />
