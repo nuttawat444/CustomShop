@@ -1,0 +1,124 @@
+@model AccountingDashboardViewModel
+@{ ViewData["Title"] = "บัญชีและการเงิน"; }
+
+<section class="dash">
+    <header class="dash-header">
+        <div><p class="dash-kicker">Accounting Dashboard</p><h1>บัญชีและการเงิน</h1><p class="dash-subtitle">ตรวจสอบยอดชำระและสถานะใบแจ้งหนี้</p></div>
+        <button type="button" class="dash-button is-primary" data-dash-open="Accounting-create" aria-haspopup="dialog">+ ออกใบแจ้งหนี้</button>
+    </header>
+    @if (TempData["StatusMessage"] is string message) { <p class="dash-notice" role="status">@message</p> }
+    @if (TempData["ErrorMessage"] is string error) { <p class="dash-notice is-error" role="alert">@error</p> }
+    <dl class="dash-metrics">
+        <div class="dash-metric"><dt>ยอดชำระแล้ววันนี้</dt><dd>฿@Model.TodayRevenue.ToString("N0")</dd></div>
+        <div class="dash-metric"><dt>ยอดขายสะสมเดือนนี้</dt><dd>฿@Model.MonthToDateRevenue.ToString("N0")</dd></div>
+        <div class="dash-metric"><dt>ยอดรอบิลคงค้าง</dt><dd>฿@Model.OutstandingInvoices.ToString("N0")</dd></div>
+        <div class="dash-metric"><dt>คูปองโปรโมชั่นที่ใช้ไป</dt><dd>@Model.TotalCouponsRedeemed ครั้ง</dd></div>
+    </dl>
+    <div class="dash-actions">
+        <a class="dash-button is-primary" asp-controller="Accounting" asp-action="Estimates">คิวประเมินราคา Custom Bike</a>
+    </div>
+    <section class="dash-panel" aria-labelledby="Accounting-list">
+        <header class="dash-panel-heading"><h2 id="Accounting-list">ใบแจ้งหนี้และใบเสร็จ</h2><p>@Model.Invoices.Count รายการ</p></header>
+        @if (Model.Invoices.Count == 0) { <p class="dash-empty">ยังไม่มีรายการ</p> }
+        else
+        {
+            <div class="dash-table-scroll" role="region" aria-labelledby="Accounting-list" tabindex="0">
+                <table class="dash-table dash-project-table">
+                <thead>
+                    <tr>
+                        <th scope="col">เลขที่ใบเสร็จ</th>
+                        <th scope="col">ลูกค้า</th>
+                        <th scope="col">รายการ</th>
+                        <th scope="col">วันที่</th>
+                        <th scope="col">ส่วนลดคูปอง</th>
+                        <th scope="col">ยอดสุทธิ</th>
+                        <th scope="col">ช่องทางชำระ</th>
+                        <th scope="col">สถานะ</th>
+                        <th scope="col">การจัดการบิล</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var inv in Model.Invoices)
+                    {
+                        <tr>
+                            <td class="dash-nowrap">@inv.InvoiceNo</td>
+                            <td style="font-weight: 600;">@inv.CustomerName</td>
+                            <td style="color: var(--theme-muted); font-size: 0.85rem;">@inv.ItemDescription</td>
+                            <td>@inv.CreatedAt.AddHours(7).ToString("dd/MM/yyyy")</td>
+                            <td style="color: var(--theme-error);">@(inv.DiscountAmount > 0 ? $"-฿{inv.DiscountAmount:N0}" : "-")</td>
+                            <td style="font-weight: 700; color: var(--theme-ink);">฿@inv.TotalAmount.ToString("N0")</td>
+                            <td>@inv.PaymentMethod</td>
+                            <td>
+                                @if (inv.Status == "ชำระเงินแล้ว")
+                                {
+                                    <span class="dash-status is-positive">@inv.Status</span>
+                                }
+                                else if (inv.Status == "รอชำระเงิน")
+                                {
+                                    <span class="dash-status">@inv.Status</span>
+                                }
+                                else
+                                {
+                                    <span class="dash-status">@inv.Status</span>
+                                }
+                            </td>
+                            <td style="text-align: right;">
+                                <div class="dash-actions dash-nowrap">
+                                    @if (inv.Status == "รอชำระเงิน")
+                                    {
+                                        <form asp-controller="Accounting" asp-action="MarkAsPaid" method="post" style="display:inline;">
+                                            <input type="hidden" name="invoiceNo" value="@inv.InvoiceNo" />
+                                            <button type="submit" class="dash-button">บันทึกชำระ</button>
+                                        </form>
+                                    }
+                                    @if (inv.SaleOrderId == null && inv.Status != "ยกเลิกบิล")
+                                    {
+                                        <form asp-controller="Accounting" asp-action="CancelInvoice" method="post" style="display:inline;">
+                                            <input type="hidden" name="invoiceNo" value="@inv.InvoiceNo" />
+                                            <button type="submit" class="dash-button" onclick="return confirm('ยืนยันยกเลิกใบเสร็จนี้?');">ยกเลิกบิล</button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            </div>
+        }
+    </section>
+    <dialog id="Accounting-create" class="dash-dialog" aria-labelledby="Accounting-create-title">
+        <h2 id="Accounting-create-title">ออกใบแจ้งหนี้</h2>
+        <form asp-controller="Accounting" asp-action="CreateInvoice" method="post" class="dash-form">
+                <div class="dash-field">
+                    <label asp-for="NewInvoiceForm.CustomerName">ชื่อลูกค้า</label>
+                    <input asp-for="NewInvoiceForm.CustomerName" placeholder="เช่น คุณอดิสรณ์ วัฒนชัย" required />
+                </div>
+                <div class="dash-field">
+                    <label asp-for="NewInvoiceForm.ItemDescription">รายการสินค้าหรือบริการ</label>
+                    <input asp-for="NewInvoiceForm.ItemDescription" placeholder="เช่น หมวกกันน็อก Vintage + ชิวหน้า" required />
+                </div>
+                <div class="dash-field">
+                    <label asp-for="NewInvoiceForm.TotalAmount">ยอดรวม (บาท)</label>
+                    <input asp-for="NewInvoiceForm.TotalAmount" type="number" step="100" value="15000" required />
+                </div>
+                <div class="dash-field">
+                    <label asp-for="NewInvoiceForm.DiscountAmount">ส่วนลดคูปอง (บาท)</label>
+                    <input asp-for="NewInvoiceForm.DiscountAmount" type="number" step="100" value="0" />
+                </div>
+                <div class="dash-field">
+                    <label asp-for="NewInvoiceForm.PaymentMethod">ช่องทางการชำระ</label>
+                    <select asp-for="NewInvoiceForm.PaymentMethod">
+                        <option value="โอนผ่าน QR ธนาคาร">โอนผ่าน QR ธนาคาร</option>
+                        <option value="บัตรเครดิต">บัตรเครดิต</option>
+                        <option value="เงินสดหน้าร้าน">เงินสดหน้าร้าน</option>
+                        <option value="รอวางบิล">รอวางบิล</option>
+                    </select>
+                </div>
+                <div class="dash-field">
+                    <button type="submit" class="dash-button is-primary">+ ออกใบเสร็จรับเงิน</button>
+                </div>
+        </form>
+        <form method="dialog"><button class="dash-button">ปิด</button></form>
+    </dialog>
+</section>

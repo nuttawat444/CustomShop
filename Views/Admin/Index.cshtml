@@ -1,0 +1,106 @@
+@model AdminDashboardViewModel
+@{ ViewData["Title"] = "จัดการผู้ใช้"; }
+
+<section class="dash">
+    <header class="dash-header">
+        <div><p class="dash-kicker">Admin Dashboard</p><h1>จัดการผู้ใช้</h1><p class="dash-subtitle">ดูบัญชีสมาชิกและจัดการสิทธิ์ของทีมงาน</p></div>
+        <div class="dash-actions">
+            <a class="dash-button" asp-controller="CatalogAdmin" asp-action="Index">จัดการแค็ตตาล็อก</a>
+            <a class="dash-button is-primary" asp-controller="Admin" asp-action="CreateUser">+ เพิ่มผู้ใช้</a>
+        </div>
+    </header>
+    @if (TempData["StatusMessage"] is string message) { <p class="dash-notice" role="status">@message</p> }
+    @if (TempData["ErrorMessage"] is string error) { <p class="dash-notice is-error" role="alert">@error</p> }
+    <dl class="dash-metrics">
+        <div class="dash-metric"><dt>ผู้ใช้ทั้งหมด</dt><dd>@Model.TotalUsers</dd></div>
+        <div class="dash-metric"><dt>ผู้ดูแลระบบ</dt><dd>@Model.TotalAdmins</dd></div>
+        <div class="dash-metric"><dt>สมาชิก</dt><dd>@Model.TotalMembers</dd></div>
+        <div class="dash-metric"><dt>บัญชีพนักงาน</dt><dd>@Model.TotalStaff</dd></div>
+    </dl>
+    <section class="dash-panel" aria-labelledby="admin-users">
+        <header class="dash-panel-heading"><h2 id="admin-users">บัญชีผู้ใช้</h2>
+            <label class="dash-search dash-field"><span class="visually-hidden">ค้นหาบัญชีผู้ใช้</span>
+                <input type="search" id="userSearchInput" placeholder="ค้นหาชื่อ อีเมล หรือเบอร์โทร" /></label>
+        </header>
+                <div class="dash-actions dash-filters">
+            <button type="button" class="dash-button filter-chip" aria-pressed="true" data-filter="all">ทั้งหมด (@Model.Users.Count)</button>
+            <button type="button" class="dash-button filter-chip" aria-pressed="false" data-filter="Admin">Admin</button>
+            <button type="button" class="dash-button filter-chip" aria-pressed="false" data-filter="Owner">Owner</button>
+            <button type="button" class="dash-button filter-chip" aria-pressed="false" data-filter="Warehouse Worker">Warehouse</button>
+            <button type="button" class="dash-button filter-chip" aria-pressed="false" data-filter="Mechanic">Mechanic</button>
+            <button type="button" class="dash-button filter-chip" aria-pressed="false" data-filter="Account">Account</button>
+            <button type="button" class="dash-button filter-chip" aria-pressed="false" data-filter="Member">Member</button>
+        </div>
+        @if (Model.Users.Count == 0) { <p class="dash-empty">ยังไม่มีบัญชีผู้ใช้</p> }
+        else
+        {
+            <div class="dash-table-scroll" role="region" aria-labelledby="admin-users" tabindex="0">
+                <table class="dash-table dash-project-table">
+                    <thead><tr><th scope="col">ผู้ใช้</th><th scope="col">อีเมล</th><th scope="col">โทรศัพท์</th><th scope="col">Role</th><th scope="col">จัดการ</th></tr></thead>
+                    <tbody>
+                        @foreach (var user in Model.Users)
+                        {
+                            <tr class="user-row" data-role="@user.Role" data-search="@user.Name.ToLowerInvariant() @user.Username.ToLowerInvariant() @user.Email.ToLowerInvariant() @user.PhoneNumber">
+                                <th scope="row"><span class="dash-project-name" title="@user.Name">@user.Name</span><span class="dash-code">@@@user.Username</span></th>
+                                <td>@user.Email</td><td class="dash-nowrap">@(user.PhoneNumber ?? "—")</td>
+                                <td><span class="dash-status @(user.Role == AppRoles.Admin ? "is-positive" : "")">@user.Role</span></td>
+                                <td><div class="dash-actions">
+                                    <a class="dash-button" asp-controller="Admin" asp-action="EditUser" asp-route-id="@user.Id" aria-label="แก้ไข @user.Name">แก้ไข</a>
+                                    <form asp-controller="Admin" asp-action="DeleteUser" asp-route-id="@user.Id" method="post" onsubmit="return confirm('ยืนยันการลบบัญชีนี้หรือไม่?');">
+                                        <button class="dash-button" aria-label="ลบ @user.Name">ลบ</button>
+                                    </form>
+                                </div></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        <p class="dash-empty" id="admin-no-matches" role="status" hidden>ไม่พบบัญชีที่ตรงกับการค้นหา</p>
+    </section>
+</section>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('userSearchInput');
+            const filterChips = document.querySelectorAll('.filter-chip');
+            const rows = document.querySelectorAll('.user-row');
+
+            let currentFilter = 'all';
+
+            function filterTable() {
+                let visible = 0;
+                const query = searchInput.value.toLowerCase().trim();
+
+                rows.forEach(row => {
+                    const searchData = row.getAttribute('data-search') || '';
+                    const role = row.getAttribute('data-role') || '';
+
+                    const matchesQuery = !query || searchData.includes(query);
+                    const matchesFilter = currentFilter === 'all' || role.toLowerCase() === currentFilter.toLowerCase();
+
+                    if (matchesQuery && matchesFilter) {
+                        row.style.display = '';
+                        visible++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+                document.getElementById("admin-no-matches").hidden = visible > 0 || rows.length === 0;
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', filterTable);
+            }
+
+            filterChips.forEach(chip => {
+                chip.addEventListener('click', function () {
+                    filterChips.forEach(c => c.setAttribute("aria-pressed", c === this ? "true" : "false"));
+                    currentFilter = this.getAttribute('data-filter');
+                    filterTable();
+                });
+            });
+        });
+    </script>
+}

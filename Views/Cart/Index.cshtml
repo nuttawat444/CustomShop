@@ -1,0 +1,58 @@
+
+@model CartPageViewModel
+@{ ViewData["Title"] = "ตะกร้าสินค้า"; }
+
+<section class="dash">
+    <header class="dash-header"><div><p class="dash-kicker">CustomShop</p><h1>ตะกร้าสินค้า</h1><p class="dash-subtitle">@Model.Basket.Rows.Sum(row => row.Quantity) ชิ้นในตะกร้า</p></div></header>
+    <partial name="_CustomerNavigation" />
+    @if (TempData["ErrorMessage"] is string message) { <p class="dash-notice is-error" role="alert">@message</p> }
+    @if (Model.Basket.Rows.Count == 0)
+    {
+        <section class="dash-panel dash-empty"><h2>ตะกร้าของคุณยังว่าง</h2><p>เพิ่มหมวกหรืออะไหล่จากหน้าสินค้า</p>
+            <a class="dash-button is-primary" asp-controller="Home" asp-action="Product">เลือกซื้อสินค้า</a></section>
+    }
+    else
+    {
+        <div class="customer-grid">
+            <section class="dash-panel" aria-labelledby="cart-items">
+                <header class="dash-panel-heading"><h2 id="cart-items">รายการสินค้า</h2></header>
+                @foreach (var row in Model.Basket.Rows)
+                {
+                    <article class="dash-task customer-item">
+                        <div class="cart-preview">
+                            <img class="cart-preview-image" src="@Url.Content("~/images/shop/" + (string.IsNullOrWhiteSpace(row.Image) ? "hero.jpg" : row.Image))" alt="@row.Name" loading="lazy" />
+                            <div><h3>@row.Name@(string.IsNullOrWhiteSpace(row.Size) ? "" : " · " + row.Size)</h3><p class="dash-subtitle">฿@row.Price.ToString("N2") ต่อ@row.Unit · คงเหลือ @row.Available @row.Unit</p>
+                            @if (!string.IsNullOrWhiteSpace(row.Description)) { <p class="dash-subtitle cart-preview-description">@row.Description</p> }
+                            @if (row.Available < row.Quantity) { <p class="dash-status">คงเหลือไม่พอ</p> }
+                            </div>
+                        </div>
+                        <strong class="dash-nowrap">฿@((row.Price * row.Quantity).ToString("N2"))</strong>
+                        <form class="dash-actions" asp-controller="Cart" asp-action="Change" method="post">
+                            <input asp-for="CartLineForm.StockId" id="cart-stock-@row.StockId" type="hidden" value="@row.StockId" />
+                            <label class="dash-field customer-quantity">จำนวน
+                                <input asp-for="CartLineForm.Quantity" id="cart-quantity-@row.StockId" type="number" min="0" max="999" value="@row.Quantity" required />
+                            </label>
+                            <button class="dash-button">บันทึกจำนวน</button>
+                            <button class="dash-button" formnovalidate asp-controller="Cart" asp-action="Remove" asp-route-stockId="@row.StockId">ลบ</button>
+                        </form>
+                    </article>
+                }
+            </section>
+            <section class="dash-panel customer-summary" aria-labelledby="cart-summary">
+                <header class="dash-panel-heading"><h2 id="cart-summary">สรุปคำสั่งซื้อ</h2></header>
+                <div class="dash-panel-body">
+                    <dl class="customer-totals"><dt>รวมก่อนส่วนลด</dt><dd>฿@Model.Basket.Total.ToString("N2")</dd></dl>
+                    <form class="customer-checkout" asp-controller="Cart" asp-action="Review" method="post">
+                        <input asp-for="ReviewForm.Revision" type="hidden" />
+                        <label class="dash-field">วิธีรับสินค้า
+                            <select asp-for="ReviewForm.Fulfillment"><option value="pickup">รับที่ร้าน</option><option value="delivery">จัดส่งฟรี</option></select>
+                        </label>
+                        <label class="dash-field">ที่อยู่ (สำหรับจัดส่ง)<textarea asp-for="ReviewForm.Address" maxlength="500" rows="3"></textarea></label>
+                        <label class="dash-field">โค้ดส่วนลด<input asp-for="ReviewForm.Code" maxlength="40" /></label>
+                        <button class="dash-button is-primary">ตรวจสอบยอดชำระ</button>
+                    </form>
+                </div>
+            </section>
+        </div>
+    }
+</section>

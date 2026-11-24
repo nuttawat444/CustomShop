@@ -1,0 +1,39 @@
+
+@model QuoteHistoryViewModel
+@{
+    ViewData["Title"] = "คำขอประเมินราคา";
+    string[] stepLabels = ["ส่งคำขอ", "Accounting ประเมินราคา", "ช่างรับงาน", "ประกอบและทดสอบ", "พร้อมส่งงาน"];
+}
+<section class="dash">
+    <header class="dash-header"><div><p class="dash-kicker">CustomShop</p><h1>คำขอประเมินราคา</h1></div>
+        <a class="dash-button is-primary" asp-controller="Home" asp-action="CustomBike">ดูรถคัสตอม</a></header>
+    <partial name="_CustomerNavigation" />
+    @if (TempData["StatusMessage"] is string message) { <p class="dash-notice" role="status">@message</p> }
+    <section class="dash-panel" aria-labelledby="quotes-title">
+        <header class="dash-panel-heading"><h2 id="quotes-title">โครงการของฉัน</h2><p>@Model.Projects.Count รายการ</p></header>
+        @if (Model.Projects.Count == 0) { <p class="dash-empty">ยังไม่มีคำขอประเมินราคา</p> }
+        @foreach (var project in Model.Projects)
+        {
+            var status = QuoteWorkflow.Status(project);
+            var currentStep = QuoteWorkflow.Step(project);
+            <article class="dash-task quote-project">
+                <div><h3>@project.ProjectName</h3>
+                    @if (QuoteWorkflow.CanShowConfirmedPrice(project)) { <p class="dash-subtitle">ราคาที่ Owner ยืนยัน ฿@project.Budget.ToString("N2")</p> }
+                </div>
+                <div><span class="dash-status @(status == QuoteWorkflow.Ready ? "is-positive" : "")" title="@status">@status</span>
+                    <div class="dash-progress"><progress max="100" value="@project.ProgressPercentage" aria-label="ความคืบหน้า"></progress><span>@project.ProgressPercentage%</span></div>
+                </div>
+                <ol class="quote-steps" aria-label="ขั้นตอนงานคัสตอม">
+                    @for (var index = 0; index < stepLabels.Length; index++)
+                    {
+                        var step = index + 1;
+                        <li class="@(step <= currentStep ? "is-reached" : "")" aria-current="@(step == currentStep ? "step" : null)">
+                            <span class="quote-step-number" aria-hidden="true">@step</span>@stepLabels[index]
+                        </li>
+                    }
+                </ol>
+                <partial name="_SelectedBikeParts" model="Model.Parts[project.ProjectCode]" />
+            </article>
+        }
+    </section>
+</section>

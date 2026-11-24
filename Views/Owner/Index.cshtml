@@ -1,0 +1,198 @@
+
+@model OwnerDashboardViewModel
+@{ ViewData["Title"] = "ภาพรวมกิจการ"; }
+
+<section class="dash">
+    <header class="dash-header">
+        <div>
+            <p class="dash-kicker">Owner Dashboard</p>
+            <h1>ภาพรวมกิจการ</h1>
+            <p class="dash-subtitle">ติดตามรายได้ งบประมาณ และโครงการคัสตอม</p>
+        </div>
+        <button type="button" class="dash-button is-primary" data-dash-open="owner-create-project" aria-haspopup="dialog">+ เปิดโครงการ</button>
+    </header>
+
+    @if (TempData["StatusMessage"] is string message) { <p class="dash-notice" role="status">@message</p> }
+    @if (TempData["ErrorMessage"] is string error) { <p class="dash-notice is-error" role="alert">@error</p> }
+
+    <dl class="dash-metrics">
+        <div class="dash-metric"><dt>รายได้เดือนนี้</dt><dd>฿@Model.MonthlyRevenue.ToString("N0")</dd></div>
+        <div class="dash-metric"><dt>งบโครงการที่อนุมัติและยังเปิดอยู่</dt><dd>฿@Model.OpenBudget.ToString("N0")</dd></div>
+        <div class="dash-metric"><dt>โครงการที่ยังเปิดอยู่</dt><dd>@Model.ActiveCustomProjects</dd></div>
+        <div class="dash-metric"><dt>พนักงานที่ปฏิบัติงาน</dt><dd>@Model.TotalStaffCount</dd></div>
+    </dl>
+
+    <section class="dash-panel" aria-labelledby="owner-projects">
+        <header class="dash-panel-heading"><h2 id="owner-projects">โครงการคัสตอม</h2><p>@Model.Projects.Count โครงการ</p></header>
+        @if (Model.Projects.Count == 0)
+        {
+            <p class="dash-empty">ยังไม่มีโครงการคัสตอม</p>
+        }
+        else
+        {
+            <div class="dash-table-scroll" role="region" aria-labelledby="owner-projects" tabindex="0">
+                <table class="dash-table dash-project-table">
+                    <thead><tr>
+                        <th scope="col">โครงการ</th><th scope="col">ลูกค้า</th><th scope="col" class="dash-align-end">งบประมาณ</th>
+                        <th scope="col">สถานะ</th><th scope="col">ความคืบหน้า</th><th scope="col" class="dash-align-end">คำสั่ง</th>
+                    </tr></thead>
+                    <tbody>
+                        @for (var index = 0; index < Model.Projects.Count; index++)
+                        {
+                            var row = Model.Projects[index];
+                            var project = row.Project;
+                            var status = project.UserId.HasValue && project.Status != QuoteWorkflow.EstimateReturned
+                                ? QuoteWorkflow.Status(project) : project.Status;
+                            <tr>
+                                <th scope="row">
+                                    <span class="dash-project-name" title="@project.ProjectName">@project.ProjectName</span>
+                                    <span class="dash-code" title="@project.ProjectCode">@row.DisplayCode</span>
+                                </th>
+                                <td class="dash-nowrap">@project.CustomerName</td>
+                                <td class="dash-nowrap dash-align-end">฿@project.Budget.ToString("N0")</td>
+                                <td><span title="@status" class="dash-status @(project.IsApproved ? "is-positive" : "")">@status</span></td>
+                                <td><div class="dash-progress"><progress max="100" value="@project.ProgressPercentage" aria-label="ความคืบหน้า"></progress><span>@project.ProgressPercentage%</span></div></td>
+                                <td class="dash-align-end"><button type="button" class="dash-button" data-dash-open="owner-project-@index" aria-haspopup="dialog" aria-label="จัดการ @project.ProjectName">จัดการ</button></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+    <section class="dash-panel" aria-labelledby="owner-staff">
+        <header class="dash-panel-heading"><h2 id="owner-staff">ทีมงานรายแผนก</h2></header>
+        <div class="dash-table-scroll" role="region" aria-labelledby="owner-staff" tabindex="0">
+            <table class="dash-table">
+                <thead><tr><th scope="col">แผนก</th><th scope="col">จำนวนพนักงาน</th><th scope="col">สถานะ</th></tr></thead>
+                <tbody>
+                    @foreach (var department in Model.Departments)
+                    {
+                        <tr><th scope="row">@department.DepartmentName</th><td>@department.HeadCount คน</td>
+                            <td><span class="dash-status @(department.HeadCount > 0 ? "is-positive" : "")">@department.Status</span></td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <dialog id="owner-create-project" class="dash-dialog" aria-labelledby="owner-create-title">
+        <h2 id="owner-create-title">เปิดโครงการคัสตอม</h2>
+        <form asp-controller="Owner" asp-action="CreateProject" method="post" class="dash-form">
+                <div class="dash-field">
+                    <label asp-for="NewProjectForm.ProjectName">ชื่อโครงการ</label>
+                    <input asp-for="NewProjectForm.ProjectName" placeholder="เช่น BMW R NineT Urban" required />
+                </div>
+                <div class="dash-field">
+                    <label asp-for="NewProjectForm.CustomerName">ชื่อลูกค้า</label>
+                    <input asp-for="NewProjectForm.CustomerName" placeholder="เช่น คุณณัฐวุฒิ สิทธิชัย" required />
+                </div>
+                <div class="dash-field">
+                    <label asp-for="NewProjectForm.CustomStyle">สไตล์คัสตอม</label>
+                    <select asp-for="NewProjectForm.CustomStyle">
+                        <option value="Cafe Racer">Cafe Racer</option>
+                        <option value="Bobber Old School">Bobber Old School</option>
+                        <option value="Scrambler Tracker">Scrambler Tracker</option>
+                        <option value="Bratstyle Custom">Bratstyle Custom</option>
+                    </select>
+                </div>
+                <div class="dash-field">
+                    <label asp-for="NewProjectForm.Budget">งบประมาณ (บาท)</label>
+                    <input asp-for="NewProjectForm.Budget" type="number" min="1000" max="10000000" step="0.01" required />
+                </div>
+                <div class="dash-field">
+                    <button type="submit" class="dash-button is-primary">+ อนุมัติเปิดโครงการ</button>
+                </div>
+        </form>
+        <form method="dialog"><button class="dash-button">ปิด</button></form>
+    </dialog>
+
+    @for (var index = 0; index < Model.Projects.Count; index++)
+    {
+        var row = Model.Projects[index];
+        var project = row.Project;
+        var status = project.UserId.HasValue && project.Status != QuoteWorkflow.EstimateReturned
+            ? QuoteWorkflow.Status(project) : project.Status;
+        var estimate = row.LatestSubmittedEstimate;
+        var canReview = QuoteWorkflow.CanReviewEstimate(project) && estimate is { ReviewedAt: null };
+        <dialog id="owner-project-@index" class="dash-dialog" aria-labelledby="owner-project-title-@index">
+            <h2 class="dash-project-full" id="owner-project-title-@index">@project.ProjectName</h2>
+            <p class="dash-subtitle dash-project-full">@project.ProjectCode · @status</p>
+            <p>ลูกค้า @project.CustomerName · งบ ฿@project.Budget.ToString("N2")</p>
+            <partial name="_SelectedBikeParts" model="Model.ProjectParts[project.ProjectCode]" />
+            @if (estimate is not null)
+            {
+                <div class="dash-actions">
+                    <a class="dash-button" asp-controller="Owner" asp-action="EstimateDocument" asp-route-id="@project.ProjectCode" asp-route-revision="@estimate.Revision">
+                        เปิดใบประเมินฉบับ @estimate.Revision · ฿@estimate.TotalAmount.ToString("N2")
+                    </a>
+                </div>
+            }
+            @if (canReview)
+            {
+                <form asp-controller="Owner" asp-action="ReturnEstimate" method="post" class="dash-form">
+                    <input asp-for="ReturnForm.ProjectCode" id="return-project-@index" type="hidden" value="@project.ProjectCode" />
+                    <input asp-for="ReturnForm.Revision" id="return-revision-@index" type="hidden" value="@estimate!.Revision" />
+                    <label class="dash-field">เหตุผลที่ส่งกลับ
+                        <textarea asp-for="ReturnForm.Reason" id="return-reason-@index" rows="2" maxlength="1000" required></textarea>
+                    </label>
+                    <div><button class="dash-button" type="submit">ส่งกลับ Accounting</button></div>
+                </form>
+                @if (Model.Mechanics.Count == 0)
+                {
+                    <p class="dash-subtitle">ยังไม่มีช่างที่เปิดใช้งานให้มอบหมาย</p>
+                }
+            }
+            @if (QuoteWorkflow.CanAssign(project) && (!QuoteWorkflow.CanReviewEstimate(project) || canReview) && Model.Mechanics.Count > 0)
+            {
+                <form asp-controller="Owner" asp-action="Assign" method="post" class="dash-form">
+                    <input asp-for="AssignmentForm.ProjectCode" id="assignment-code-@index" type="hidden" value="@project.ProjectCode" />
+                    @if (canReview)
+                    {
+                        <input asp-for="AssignmentForm.EstimateRevision" id="assignment-revision-@index" type="hidden" value="@estimate!.Revision" />
+                        <p>ยอดที่จะยืนยัน ฿@estimate!.TotalAmount.ToString("N2")</p>
+                    }
+                    else if (project.UserId is null)
+                    {
+                        <label class="dash-field">ราคาประเมิน (บาท)
+                            <input asp-for="AssignmentForm.Budget" id="assignment-budget-@index" type="number" min="0" max="10000000" step=".01" value="@project.Budget.ToString(System.Globalization.CultureInfo.InvariantCulture)" required />
+                        </label>
+                    }
+                    <label class="dash-field">ช่างผู้รับผิดชอบ
+                        <select asp-for="AssignmentForm.MechanicUserId" id="assignment-mechanic-@index" asp-items="@(new Microsoft.AspNetCore.Mvc.Rendering.SelectList(Model.Mechanics, nameof(MechanicOption.Id), nameof(MechanicOption.Label)))" required>
+                            <option value="">เลือกช่าง</option>
+                        </select>
+                    </label>
+                    <div><button class="dash-button is-primary">@(canReview || project.UserId is null ? "ยืนยันราคาและมอบหมาย" : "เปลี่ยนช่างผู้รับผิดชอบ")</button></div>
+                </form>
+            }
+            <div class="dash-actions">
+                @if (project.UserId is null)
+                {
+                    <form asp-controller="Owner" asp-action="ToggleApproval" method="post">
+                        <input type="hidden" name="projectCode" value="@project.ProjectCode" />
+                        <button class="dash-button">@(project.IsApproved ? "ระงับงบ" : "อนุมัติงบ")</button>
+                    </form>
+                }
+                @if (QuoteWorkflow.CanDeliver(project))
+                {
+                    <form asp-controller="Owner" asp-action="Deliver" method="post">
+                        <input asp-for="DeliveryForm.ProjectCode" id="delivery-code-@index" type="hidden" value="@project.ProjectCode" />
+                        <button class="dash-button is-primary">ตรวจแล้ว · ส่งให้ลูกค้า</button>
+                    </form>
+                }
+                @if (project.UserId is null && project.ProgressPercentage < 100)
+                {
+                    <form asp-controller="Owner" asp-action="UpdateStatus" method="post">
+                        <input type="hidden" name="projectCode" value="@project.ProjectCode" />
+                        <input type="hidden" name="newStatus" value="งานประกอบเสร็จสมบูรณ์พร้อมส่งมอบ" />
+                        <input type="hidden" name="progress" value="100" />
+                        <button class="dash-button">ปิดโครงการ</button>
+                    </form>
+                }
+                <form method="dialog"><button class="dash-button">กลับไปที่รายการ</button></form>
+            </div>
+        </dialog>
+    }
+</section>

@@ -1,0 +1,123 @@
+@model MechanicDashboardViewModel
+@{ ViewData["Title"] = "คิวงานช่าง"; }
+
+<section class="dash">
+    <header class="dash-header">
+        <div><p class="dash-kicker">Mechanic Dashboard</p><h1>คิวงานช่าง</h1><p class="dash-subtitle">ดูงานคัสตอมตามช่างและความคืบหน้า</p></div>
+        <button type="button" class="dash-button is-primary" data-dash-open="Mechanic-create" aria-haspopup="dialog">+ เปิดใบงาน</button>
+    </header>
+    @if (TempData["StatusMessage"] is string message) { <p class="dash-notice" role="status">@message</p> }
+    @if (TempData["ErrorMessage"] is string error) { <p class="dash-notice is-error" role="alert">@error</p> }
+    <dl class="dash-metrics">
+        <div class="dash-metric"><dt>งานที่กำลังทำอยู่</dt><dd>@Model.ActiveJobsCount คัน</dd></div>
+        <div class="dash-metric"><dt>เสร็จวันนี้</dt><dd>@Model.CompletedTodayCount คัน</dd></div>
+        <div class="dash-metric"><dt>งานด่วนพิเศษ</dt><dd>@Model.UrgentJobsCount งาน</dd></div>
+        <div class="dash-metric"><dt>รออะไหล่ชิ้นส่วน</dt><dd>@Model.WaitingPartsCount รายการ</dd></div>
+    </dl>
+    <section class="dash-panel" aria-labelledby="Mechanic-list">
+        <header class="dash-panel-heading"><h2 id="Mechanic-list">ใบงานที่ฉันรับผิดชอบ</h2><p>@Model.JobOrders.Count รายการ</p></header>
+        @if (Model.JobOrders.Count == 0) { <p class="dash-empty">ยังไม่มีงานที่ได้รับมอบหมาย</p> }
+        else
+        {
+            <div class="dash-table-scroll" role="region" aria-labelledby="Mechanic-list" tabindex="0">
+                <table class="dash-table dash-project-table">
+                <thead>
+                    <tr>
+                        <th scope="col">ใบงาน / รุ่นรถ</th>
+                        <th scope="col">สไตล์คัสตอม</th>
+                        <th scope="col">รายละเอียดงาน</th>
+                        <th scope="col">ช่างผู้รับผิดชอบ</th>
+                        <th scope="col">ความสำคัญ</th>
+                        <th scope="col">ความคืบหน้า</th>
+                        <th scope="col">จัดการใบงาน</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var job in Model.JobOrders)
+                    {
+                        <tr>
+                            <th scope="row"><span class="dash-project-name" title="@job.BikeModel">@job.BikeModel</span><span class="dash-code" title="@job.JobTicketNo">@(job.JobTicketNo.Length > 16 ? job.JobTicketNo[..12] + "…" : job.JobTicketNo)</span></th>
+                            <td><span class="dash-status">@job.CustomStyle</span></td>
+                            <td>@job.ServiceType</td>
+                            <td>@job.AssignedMechanic</td>
+                            <td>
+                                @if (job.Priority == "Urgent")
+                                {
+                                    <span class="dash-status">ด่วนที่สุด</span>
+                                }
+                                else if (job.Priority == "High")
+                                {
+                                    <span class="dash-status">ด่วน</span>
+                                }
+                                else
+                                {
+                                    <span class="dash-status is-positive">ทั่วไป</span>
+                                }
+                            </td>
+                            <td><span class="dash-status" title="@job.Status">@job.Status</span><div class="dash-progress"><progress value="@job.ProgressPercent" max="100" aria-label="ความคืบหน้า"></progress><span>@job.ProgressPercent%</span></div></td>
+                            <td style="text-align: right;">
+                                <div class="dash-actions">
+                                    @if (job.ProgressPercent < 100)
+                                    {
+                                        <form asp-controller="Mechanic" asp-action="UpdateProgress" method="post" class="dash-actions">
+                                            <input asp-for="ProgressForm.TicketNo" id="progress-@job.JobTicketNo" type="hidden" value="@job.JobTicketNo" />
+                                            <button type="submit" class="dash-button" name="@Html.NameFor(model => model.ProgressForm.Complete)" value="false">เพิ่ม 25%</button>
+                                            <button type="submit" class="dash-button" name="@Html.NameFor(model => model.ProgressForm.Complete)" value="true">เสร็จสิ้น</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span style="color:var(--theme-green); font-weight:600; font-size:0.85rem;">@(job.Status == QuoteWorkflow.Ready ? "พร้อมส่งงาน" : job.ProjectCode == null ? "เสร็จสิ้น" : "รอ Owner ตรวจ")</span>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            </div>
+        }
+    </section>
+    <dialog id="Mechanic-create" class="dash-dialog" aria-labelledby="Mechanic-create-title">
+        <h2 id="Mechanic-create-title">เปิดใบงาน</h2>
+        <form asp-controller="Mechanic" asp-action="CreateJob" method="post" class="dash-form">
+                <div class="dash-field">
+                    <label asp-for="NewJobForm.BikeModel">รุ่นรถมอเตอร์ไซค์</label>
+                    <input asp-for="NewJobForm.BikeModel" placeholder="เช่น Honda CB650R" required />
+                </div>
+                <div class="dash-field">
+                    <label asp-for="NewJobForm.CustomStyle">สไตล์คัสตอม</label>
+                    <select asp-for="NewJobForm.CustomStyle">
+                        <option value="Cafe Racer">Cafe Racer</option>
+                        <option value="Bobber Old School">Bobber Old School</option>
+                        <option value="Urban Scrambler">Urban Scrambler</option>
+                        <option value="Flat Tracker">Flat Tracker</option>
+                        <option value="Chopper Vintage">Chopper Vintage</option>
+                    </select>
+                </div>
+                <div class="dash-field">
+                    <label asp-for="NewJobForm.ServiceType">รายละเอียดงาน</label>
+                    <input asp-for="NewJobForm.ServiceType" placeholder="เช่น เดินท่อสแตนเลสคู่ ย้ายสวิงอาร์ม" required />
+                </div>
+                <div class="dash-field">
+                    <label asp-for="NewJobForm.MechanicUserId">ช่างผู้รับผิดชอบ</label>
+                    <select asp-for="NewJobForm.MechanicUserId" required>
+                        <option value="">เลือกช่าง</option>
+                        @foreach (var mechanic in Model.Mechanics) { <option value="@mechanic.Id">@mechanic.Label</option> }
+                    </select>
+                </div>
+                <div class="dash-field">
+                    <label asp-for="NewJobForm.Priority">ความเร่งด่วน</label>
+                    <select asp-for="NewJobForm.Priority">
+                        <option value="Normal">ทั่วไป</option>
+                        <option value="High">เร่งด่วน (High)</option>
+                        <option value="Urgent">ด่วนที่สุด (Urgent)</option>
+                    </select>
+                </div>
+                <div class="dash-field">
+                    <button type="submit" class="dash-button is-primary">+ บันทึกเปิดใบสั่งงานช่าง</button>
+                </div>
+        </form>
+        <form method="dialog"><button class="dash-button">ปิด</button></form>
+    </dialog>
+</section>

@@ -1,0 +1,10 @@
+@model OrderReceipt
+@{ ViewData["Title"] = "รายการจัดสินค้า"; }
+<section class="commerce"><h1>รายการจัดสินค้า #@Model.Order.Id</h1>
+<p>@(Model.Order.Fulfillment == "delivery" ? "จัดส่ง" : "รับที่ร้าน") @Model.Order.Address</p>
+@foreach (var line in Model.Lines)
+{
+    var isReadyBike = line.Size == StoreSaleRules.ReadyBikeUnit;
+    <article>@line.Name@(string.IsNullOrWhiteSpace(line.Size) || isReadyBike ? "" : " · " + line.Size) · @line.Quantity @(isReadyBike ? "คัน" : "ชิ้น")</article>
+}
+<a asp-action="Index">กลับคลังสินค้า</a></section>

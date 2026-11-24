@@ -1,0 +1,56 @@
+@model RegisterViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>เพิ่มผู้ใช้งาน</title>
+    <partial name="_ThemeAssets" />
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 30px 16px; background: var(--theme-canvas); color: var(--theme-ink); font-family: "Segoe UI", Tahoma, Arial, sans-serif; }
+        main { width: 100%; max-width: 560px; margin: 0 auto; padding: 24px; border-radius: 14px; background: var(--theme-surface); box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08); }
+        h1 { margin-top: 0; font-size: 22px; }
+        label { display: block; margin: 14px 0 6px; font-size: 14px; }
+        input { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 8px; font: inherit; }
+        .validation, .validation-summary-errors { color: var(--theme-error); font-size: 13px; }
+        .actions { display: flex; gap: 10px; margin-top: 20px; }
+        button, .cancel { padding: 10px 16px; border: 0; border-radius: 8px; font: inherit; text-decoration: none; cursor: pointer; }
+        button { background: #16834a; color: #fff; }
+        .cancel { background: var(--theme-raised); color: var(--theme-ink); }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>เพิ่มผู้ใช้งาน</h1>
+        <form asp-controller="Account" asp-action="CreateUser" method="post">
+            <div asp-validation-summary="ModelOnly" role="alert"></div>
+            <label asp-for="Name">ชื่อ</label>
+            <input asp-for="Name" autocomplete="name" />
+            <span asp-validation-for="Name" class="validation" role="alert"></span>
+            <label asp-for="Username">ชื่อผู้ใช้</label>
+            <input asp-for="Username" autocomplete="username" />
+            <span asp-validation-for="Username" class="validation" role="alert"></span>
+            <label asp-for="EmailUser">อีเมล</label>
+            <input asp-for="EmailUser" type="email" autocomplete="email" />
+            <span asp-validation-for="EmailUser" class="validation" role="alert"></span>
+            <label asp-for="Tel">โทรศัพท์</label>
+            <input asp-for="Tel" type="tel" autocomplete="tel" />
+            <span asp-validation-for="Tel" class="validation" role="alert"></span>
+            <label asp-for="Password">รหัสผ่าน</label>
+            <input asp-for="Password" type="password" autocomplete="new-password" />
+            <span asp-validation-for="Password" class="validation" role="alert"></span>
+            <label asp-for="ConfirmPassword">ยืนยันรหัสผ่าน</label>
+            <input asp-for="ConfirmPassword" type="password" autocomplete="new-password" />
+            <span asp-validation-for="ConfirmPassword" class="validation" role="alert"></span>
+            <div class="actions">
+                <button type="submit">บันทึก</button>
+                <a class="cancel" asp-controller="Account" asp-action="Dashboard">ยกเลิก</a>
+            </div>
+        </form>
+    </main>
+</body>
+</html>

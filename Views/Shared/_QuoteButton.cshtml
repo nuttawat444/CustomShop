@@ -1,0 +1,12 @@
+@model CatalogItem
+@if (ShopAccess.CanBuy(User))
+{
+    <form asp-controller="Cart" asp-action="RequestQuote" method="post">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button class="btn-detail" type="submit">ขอประเมินราคา</button>
+    </form>
+}
+else if (User.Identity?.IsAuthenticated != true)
+{
+    <a asp-controller="Account" asp-action="Login">เข้าสู่ระบบเพื่อขอประเมินราคา</a>
+}

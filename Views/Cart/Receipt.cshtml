@@ -1,0 +1,55 @@
+
+@model CustomerReceiptViewModel
+@{ ViewData["Title"] = "ใบเสร็จรับเงิน"; }
+
+<section class="dash receipt-page">
+    <div class="dash-actions receipt-toolbar">
+        <a class="dash-button" asp-controller="Cart" asp-action="History">กลับประวัติคำสั่งซื้อ</a>
+        <button type="button" class="dash-button is-primary" data-receipt-print>พิมพ์ใบเสร็จ</button>
+    </div>
+    <article class="shop-receipt" aria-labelledby="receipt-title">
+        <header class="receipt-header">
+            <div><p class="dash-kicker">CustomShop</p><h1 id="receipt-title">ใบเสร็จรับเงิน</h1><p class="dash-subtitle">รายการชำระเงินจำลอง</p></div>
+            <dl class="receipt-meta">
+                <div><dt>เลขที่ใบเสร็จ</dt><dd>@Model.ReceiptNumber</dd></div>
+                <div><dt>วันที่และเวลา (เวลาไทย)</dt><dd>@Model.PaidInBangkok.ToString("dd/MM/yyyy HH:mm")</dd></div>
+            </dl>
+        </header>
+        <dl class="receipt-customer">
+            @if (Model.Invoice is { } invoice)
+            {
+                <div><dt>ผู้ซื้อ</dt><dd>@invoice.CustomerName</dd></div>
+            }
+            <div><dt>ช่องทางชำระ</dt><dd>@Model.PaymentLabel</dd></div>
+            <div><dt>วิธีรับสินค้า</dt><dd>@(Model.Order.Fulfillment == "pickup" ? "รับที่ร้าน" : "จัดส่งฟรี")</dd></div>
+            @if (!string.IsNullOrWhiteSpace(Model.Order.Address))
+            {
+                <div><dt>ที่อยู่จัดส่ง</dt><dd>@Model.Order.Address</dd></div>
+            }
+        </dl>
+        <div class="dash-table-scroll" role="region" aria-label="รายการสินค้าในใบเสร็จ" tabindex="0">
+            <table class="dash-table receipt-lines">
+                <thead><tr>
+                    <th scope="col">สินค้า</th><th scope="col" class="dash-align-end">จำนวน</th>
+                    <th scope="col" class="dash-align-end">ราคาต่อหน่วย</th><th scope="col" class="dash-align-end">รวม</th>
+                </tr></thead>
+                <tbody>
+                    @foreach (var line in Model.Lines)
+                    {
+                        <tr>
+                            <th scope="row">@line.Name @if (!string.IsNullOrWhiteSpace(line.Size) && line.Size != StoreSaleRules.ReadyBikeUnit) { <small class="dash-code">@line.Size</small> }</th>
+                            <td class="dash-align-end">@line.Quantity@(line.Size == StoreSaleRules.ReadyBikeUnit ? " คัน" : "")</td>
+                            <td class="dash-align-end dash-nowrap">฿@line.UnitPrice.ToString("N2")</td>
+                            <td class="dash-align-end dash-nowrap">฿@((line.UnitPrice * line.Quantity).ToString("N2"))</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <dl class="checkout-totals receipt-totals">
+            <div><dt>ยอดสินค้า</dt><dd>฿@Model.Order.Subtotal.ToString("N2")</dd></div>
+            <div><dt>ส่วนลด @Model.Order.CouponCode</dt><dd>−฿@Model.Order.Discount.ToString("N2")</dd></div>
+            <div><dt>ยอดชำระ</dt><dd>฿@Model.Order.Total.ToString("N2")</dd></div>
+        </dl>
+    </article>
+</section>

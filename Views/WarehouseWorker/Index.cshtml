@@ -1,0 +1,160 @@
+
+@model WarehouseWorkerDashboardViewModel
+@{
+    ViewData["Title"] = "คลังสินค้า";
+    var unlistedStock = Model.InventoryItems.Where(item => item.CatalogItemId == null).ToList();
+}
+
+<section class="dash">
+    <header class="dash-header">
+        <div><p class="dash-kicker">Warehouse Dashboard</p><h1>คลังสินค้า</h1>
+            <p class="dash-subtitle">ดูยอดคงเหลือและติดตามงานจัดสินค้า</p></div>
+        <div class="dash-actions">
+            @if (unlistedStock.Count > 0)
+            {
+                <button class="dash-button" type="button" aria-haspopup="dialog" data-dash-open="stock-list-existing">เปิดขาย SKU เดิม</button>
+            }
+            <button class="dash-button is-primary" type="button" aria-haspopup="dialog" data-dash-open="stock-create">+ เพิ่มรายการเข้าคลัง</button>
+        </div>
+    </header>
+
+    @if (TempData["StatusMessage"] is string message) { <p class="dash-notice" role="status">@message</p> }
+    @if (TempData["ErrorMessage"] is string error) { <p class="dash-notice is-error" role="alert">@error</p> }
+
+    <dl class="dash-metrics">
+        <div class="dash-metric"><dt>จำนวนคงเหลือรวม</dt><dd>@Model.TotalStockItems</dd></div>
+        <div class="dash-metric"><dt>รายการใกล้หมด</dt><dd>@Model.LowStockAlerts</dd></div>
+        <div class="dash-metric"><dt>ออเดอร์รอจัดสินค้า</dt><dd>@Model.PendingShipments</dd></div>
+        <div class="dash-metric"><dt>งานที่เสร็จวันนี้</dt><dd>@Model.CompletedTasksToday</dd></div>
+    </dl>
+
+    <section class="dash-panel" aria-labelledby="stock-title">
+        <header class="dash-panel-heading"><h2 id="stock-title">สินค้าคงเหลือ</h2><p>@Model.InventoryItems.Count SKU</p></header>
+        @if (Model.InventoryItems.Count == 0) { <p class="dash-empty">ยังไม่มีรายการในคลัง</p> }
+        else
+        {
+            <div class="dash-table-scroll" role="region" aria-labelledby="stock-title" tabindex="0">
+                <table class="dash-table dash-project-table">
+                    <thead><tr><th scope="col">สินค้า / SKU</th><th scope="col">ไซซ์</th><th scope="col">หมวดหมู่</th>
+                        <th scope="col">ตำแหน่ง</th><th scope="col">สถานะ</th><th scope="col">คงเหลือ</th><th scope="col">หน้าร้าน</th></tr></thead>
+                    <tbody>
+                        @foreach (var item in Model.InventoryItems)
+                        {
+                            <tr id="stock-@item.Id">
+                                <th scope="row"><span class="dash-project-name" title="@item.ItemName">@item.ItemName</span><span class="dash-code">@item.ItemCode</span></th>
+                                <td class="dash-nowrap">@(string.IsNullOrEmpty(item.Size) ? "—" : item.Size)</td>
+                                <td>@item.Category</td>
+                                <td class="dash-nowrap">@(string.IsNullOrEmpty(item.Location) ? "—" : item.Location)</td>
+                                <td><span class="dash-status @(item.QuantityOnHand > item.MinRequired ? "is-positive" : "")">
+                                    @(item.QuantityOnHand == 0 ? "หมดสต็อก" : item.QuantityOnHand <= item.MinRequired ? "ใกล้หมด" : "พร้อมใช้งาน")
+                                </span></td>
+                                <td>
+                                    <form class="dash-stock-stepper" asp-controller="WarehouseWorker" asp-action="AdjustStock" method="post">
+                                        <input asp-for="StockForm.Id" id="stock-form-id-@item.Id" type="hidden" value="@item.Id" />
+                                        <input asp-for="StockForm.Amount" id="stock-form-amount-@item.Id" type="hidden" value="1" />
+                                        <button class="dash-button" name="@Html.NameFor(m => m.StockForm.ActionType)" value="Dispatch" disabled="@(item.QuantityOnHand == 0)" aria-label="ลด @item.ItemCode หนึ่งชิ้น">−</button>
+                                        <span class="dash-stock-count">@item.QuantityOnHand <small>@item.Unit</small></span>
+                                        <button class="dash-button" name="@Html.NameFor(m => m.StockForm.ActionType)" value="Restock" disabled="@(item.QuantityOnHand == int.MaxValue)" aria-label="เพิ่ม @item.ItemCode หนึ่งชิ้น">+</button>
+                                    </form>
+                                </td>
+                                <td>
+                                    @if (item.CatalogItemId is int catalogId && Model.ProductVisibility.TryGetValue(catalogId, out var visible))
+                                    {
+                                        <span class="dash-status @(visible ? "is-positive" : "")">@(visible ? "เปิดขาย" : "ปิดแสดง")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="dash-status">ยังไม่เชื่อม</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+
+    <section class="dash-panel" aria-labelledby="stock-tasks">
+        <header class="dash-panel-heading"><h2 id="stock-tasks">งานจัดสินค้า</h2></header>
+        @if (Model.DailyTasks.Count == 0) { <p class="dash-empty">ยังไม่มีงานจัดสินค้า</p> }
+        @foreach (var task in Model.DailyTasks)
+        {
+            <article class="dash-task">
+                <div><strong>@task.TaskTitle</strong><p class="dash-subtitle">@task.DueTime</p></div>
+                <div class="dash-actions">
+                    @if (task.SaleOrderId.HasValue) { <a class="dash-button" asp-controller="WarehouseWorker" asp-action="PackingList" asp-route-id="@task.SaleOrderId">รายการจัดสินค้า</a> }
+                    <form asp-controller="WarehouseWorker" asp-action="ToggleTask" method="post">
+                        <input type="hidden" name="taskId" value="@task.Id" />
+                        <button class="dash-button @(task.IsCompleted ? "" : "is-primary")">@(task.IsCompleted ? "เปิดงานอีกครั้ง" : "ทำเครื่องหมายว่าเสร็จ")</button>
+                    </form>
+                </div>
+            </article>
+        }
+    </section>
+
+    <dialog id="stock-create" class="dash-dialog" aria-labelledby="stock-create-title">
+        <h2 id="stock-create-title">เพิ่มรายการเข้าคลัง</h2>
+        <form asp-controller="WarehouseWorker" asp-action="AddItem" method="post" class="dash-form">
+                <div class="dash-field">
+                    <label asp-for="NewItemForm.ItemCode">รหัสสินค้า</label>
+                    <input asp-for="NewItemForm.ItemCode" placeholder="เช่น TANK-SR-07" maxlength="100" required />
+                </div>
+                <div class="dash-field">
+                    <label asp-for="NewItemForm.ItemName">ชื่อชิ้นส่วน / อะไหล่</label>
+                    <input asp-for="NewItemForm.ItemName" placeholder="เช่น ถังน้ำมันทรง Cafe Racer" maxlength="220" required />
+                </div>
+                <div class="dash-field">
+                    <label asp-for="NewItemForm.Category">หมวดหมู่</label>
+                    <select asp-for="NewItemForm.Category">
+                        <option value="หมวกกันน็อก">หมวกกันน็อก</option>
+                        <option value="ระบบไอเสีย">ระบบไอเสีย</option>
+                        <option value="แฮนด์และชุดควบคุม">แฮนด์และชุดควบคุม</option>
+                        <option value="ระบบไฟส่องสว่าง">ระบบไฟส่องสว่าง</option>
+                        <option value="ล้อและยาง">ล้อและยาง</option>
+                        <option value="เบาะและโครงสร้าง">เบาะและโครงสร้าง</option>
+                    </select>
+                </div>
+                <div class="dash-field">
+                    <label asp-for="NewItemForm.QuantityOnHand">จำนวนสต็อก</label>
+                    <input asp-for="NewItemForm.QuantityOnHand" type="number" min="1" max="10000" required />
+                </div>
+                <div class="dash-field">
+                    <label asp-for="NewItemForm.Location">ตำแหน่งเชลฟ์</label>
+                    <input asp-for="NewItemForm.Location" placeholder="เช่น B-02-01" maxlength="80" required />
+                </div>
+                <div class="dash-field">
+                    <label asp-for="NewItemForm.Size">ไซซ์ (ถ้ามี)</label>
+                    <input asp-for="NewItemForm.Size" maxlength="20" placeholder="เช่น M" />
+                </div>
+                @Html.EditorFor(model => model.NewItemForm.Listing)
+                <div class="dash-field">
+                    <button type="submit" class="dash-button is-primary">บันทึกรายการเข้าคลัง</button>
+                </div>
+        </form>
+        <form method="dialog"><button class="dash-button">ปิด</button></form>
+    </dialog>
+
+    @if (unlistedStock.Count > 0)
+    {
+        <dialog id="stock-list-existing" class="dash-dialog" aria-labelledby="stock-list-title">
+            <h2 id="stock-list-title">เปิดขาย SKU เดิม</h2>
+            <p class="dash-subtitle">เชื่อม SKU และจำนวนคงเหลือเดิมกับหน้า Product</p>
+            <form asp-controller="WarehouseWorker" asp-action="ListExisting" method="post" class="dash-form">
+                <div class="dash-field">
+                    <label asp-for="ExistingListingForm.StockId">SKU ในคลัง</label>
+                    <select asp-for="ExistingListingForm.StockId" required>
+                        <option value="">เลือก SKU</option>
+                        @foreach (var item in unlistedStock)
+                        {
+                            <option value="@item.Id">@item.ItemCode · @item.ItemName · @item.QuantityOnHand @item.Unit</option>
+                        }
+                    </select>
+                </div>
+                @Html.EditorFor(model => model.ExistingListingForm.Listing)
+                <div><button type="submit" class="dash-button is-primary">บันทึกการเชื่อม SKU</button></div>
+            </form>
+            <form method="dialog"><button class="dash-button">ปิด</button></form>
+        </dialog>
+    }
+</section>

@@ -1,0 +1,15 @@
+@model IEnumerable<ProjectPart>
+@if (Model.Any())
+{
+    <details class="selected-bike-parts">
+        <summary>รายการอะไหล่ที่ลูกค้าเลือก (@Model.Count() รายการ)</summary>
+        <ul>
+            @foreach (var part in Model)
+            {
+                <li><strong>@part.SlotName</strong> · @part.PartName · @part.Variant · @part.Quantity
+                    <small class="dash-code">@part.Sku · ฿@part.UnitPrice.ToString("N2") ต่อรายการ</small>
+                </li>
+            }
+        </ul>
+    </details>
+}

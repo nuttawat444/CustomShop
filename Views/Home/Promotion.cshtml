@@ -1,0 +1,558 @@
+@model CatalogPage
+@{
+    ViewData["Title"] = "โปรโมชัน Custom Bike";
+    Layout = "_LayoutUser";
+}
+
+<style>
+    .promotion-page {
+        width: min(1200px, 100%);
+        margin: 0 auto;
+    }
+
+    /* Hero Banner */
+    .promo-hero {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 260px;
+        overflow: hidden;
+        padding: clamp(32px, 5vw, 56px);
+        border-radius: 26px;
+        background:
+            radial-gradient(circle at 85% 25%, rgba(255, 90, 31, 0.35), transparent 45%),
+            linear-gradient(135deg, #181512 0%, #28231e 65%, #1b1916 100%);
+        color: #fff;
+        margin-bottom: 34px;
+        box-shadow: 0 18px 40px rgba(26, 26, 26, 0.1);
+    }
+
+    .promo-hero-eyebrow {
+        margin: 0 0 10px;
+        color: var(--brand-accent);
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+    }
+
+    .promo-hero h1 {
+        margin: 0;
+        font-family: "Fraunces", Georgia, serif;
+        font-size: clamp(2rem, 4.5vw, 3.4rem);
+        font-weight: 700;
+        line-height: 1.1;
+    }
+
+    .promo-hero-desc {
+        max-width: 620px;
+        margin: 12px 0 0;
+        color: #ddd4cb;
+        font-size: 1.02rem;
+        line-height: 1.65;
+    }
+
+    /* Mega Deal Banner */
+    .mega-deal {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1.1fr 1fr;
+        border-radius: 24px;
+        overflow: hidden;
+        background: #171513;
+        color: #fff;
+        margin-bottom: 40px;
+        border: 1px solid rgba(255, 90, 31, 0.3);
+        box-shadow: 0 20px 48px rgba(26, 26, 26, 0.14);
+    }
+
+    .mega-deal-img-wrap {
+        position: relative;
+        min-height: 340px;
+        overflow: hidden;
+    }
+
+    .mega-deal-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+        transition: transform 0.4s ease;
+    }
+
+    .mega-deal:hover .mega-deal-img {
+        transform: scale(1.05);
+    }
+
+    .mega-badge {
+        position: absolute;
+        top: 18px;
+        left: 18px;
+        padding: 7px 16px;
+        border-radius: 999px;
+        background: var(--theme-accent-bg);
+        color: #fff;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        box-shadow: 0 4px 14px rgba(255, 90, 31, 0.4);
+    }
+
+    .mega-deal-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: clamp(28px, 4vw, 44px);
+    }
+
+    .mega-deal-tag {
+        color: #ff9a73;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+
+    .mega-deal-body h2 {
+        margin: 0 0 14px;
+        font-family: "Fraunces", Georgia, serif;
+        font-size: clamp(1.6rem, 3vw, 2.2rem);
+        line-height: 1.2;
+        color: #ffffff;
+    }
+
+    .mega-deal-body p {
+        margin: 0 0 22px;
+        color: #d1c6bc;
+        font-size: 0.95rem;
+        line-height: 1.65;
+    }
+
+    .mega-deal-footer {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 14px;
+    }
+
+    /* Voucher Code Box */
+    .voucher-box {
+        display: inline-flex;
+        align-items: center;
+        border: 1px dashed rgba(255, 255, 255, 0.4);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.06);
+        padding: 4px 6px 4px 14px;
+    }
+
+    .voucher-code {
+        font-family: monospace;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #ff8e66;
+        letter-spacing: 0.12em;
+        margin-right: 12px;
+    }
+
+    .btn-copy {
+        padding: 8px 14px;
+        border: none;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.16);
+        color: #fff;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-copy:hover {
+        background: var(--theme-accent-bg);
+    }
+
+    /* Section Heading */
+    .promo-section-title {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 24px;
+    }
+
+    .promo-section-title h2 {
+        margin: 0;
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 1.85rem;
+        color: var(--theme-ink);
+    }
+
+    .promo-section-title span {
+        color: var(--theme-muted);
+        font-size: 0.9rem;
+    }
+
+    /* Deals Grid */
+    .deals-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 24px;
+        margin-bottom: 48px;
+    }
+
+    /* Deal Card */
+    .deal-card {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid var(--theme-line);
+        border-radius: 22px;
+        background: var(--theme-surface);
+        box-shadow: 0 10px 28px rgba(26, 26, 26, 0.05);
+        transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .deal-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 42px rgba(26, 26, 26, 0.12);
+    }
+
+    .deal-img-wrap {
+        position: relative;
+        height: 220px;
+        overflow: hidden;
+        background: #1a1a1a;
+    }
+
+    .deal-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .deal-card:hover .deal-img {
+        transform: scale(1.08);
+    }
+
+    .deal-discount-badge {
+        position: absolute;
+        top: 14px;
+        left: 14px;
+        z-index: 2;
+        padding: 5px 13px;
+        border-radius: 999px;
+        background: var(--theme-accent-bg);
+        color: #fff;
+        font-size: 0.76rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        box-shadow: 0 4px 12px rgba(255, 90, 31, 0.35);
+    }
+
+    .deal-expiry-badge {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        z-index: 2;
+        padding: 4px 10px;
+        border-radius: 8px;
+        background: rgba(20, 18, 15, 0.85);
+        backdrop-filter: blur(4px);
+        color: #fff;
+        font-size: 0.72rem;
+        font-weight: 600;
+    }
+
+    .deal-body {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        padding: 22px 20px 18px;
+    }
+
+    .deal-category {
+        color: var(--theme-accent);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+
+    .deal-title {
+        margin: 0 0 10px;
+        color: var(--theme-ink);
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 1.35rem;
+        font-weight: 600;
+        line-height: 1.25;
+    }
+
+    .deal-desc {
+        margin: 0 0 16px;
+        color: var(--theme-muted);
+        font-size: 0.88rem;
+        line-height: 1.6;
+        flex-grow: 1;
+    }
+
+    .deal-features {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 18px;
+        font-size: 0.8rem;
+        color: var(--theme-muted);
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .deal-features li {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .deal-features li::before {
+        content: "✓";
+        color: var(--brand-accent);
+        font-weight: 700;
+    }
+
+    .deal-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 14px;
+        border-top: 1px solid var(--theme-line);
+        gap: 8px;
+    }
+
+    .promotion-purchase { display: grid; justify-items: end; gap: .5rem; }
+    .deal-price-block {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .deal-old-price {
+        color: var(--theme-muted);
+        font-size: 0.74rem;
+        text-decoration: line-through;
+        margin-bottom: 2px;
+    }
+
+    .deal-special-price {
+        color: var(--theme-ink);
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 1.35rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .btn-claim {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 9px 16px;
+        border: 1px solid var(--brand-accent);
+        border-radius: 999px;
+        background: var(--theme-accent-bg);
+        color: #fff;
+        font-size: 0.84rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.18s ease;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .btn-claim:hover {
+        background: var(--brand-dark);
+        border-color: var(--brand-dark);
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+    /* Terms & Guarantee Banner */
+    .promo-terms {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 34px 40px;
+        border-radius: 22px;
+        background: var(--theme-raised);
+        border: 1px solid #e7e2db;
+        margin-bottom: 24px;
+    }
+
+    .terms-text h3 {
+        margin: 0 0 6px;
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 1.35rem;
+        color: var(--theme-ink);
+    }
+
+    .terms-text p {
+        margin: 0;
+        color: var(--theme-muted);
+        font-size: 0.88rem;
+        line-height: 1.6;
+    }
+
+    .terms-action {
+        flex-shrink: 0;
+    }
+
+    .btn-contact-promo {
+        display: inline-flex;
+        align-items: center;
+        padding: 11px 22px;
+        border-radius: 999px;
+        background: var(--brand-dark);
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-contact-promo:hover {
+        background: var(--theme-accent-bg);
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+    /* Toast Notification */
+    .toast-promo {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 22px;
+        border-radius: 999px;
+        background: #1a1a1a;
+        color: #fff;
+        font-size: 0.92rem;
+        font-weight: 600;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+        opacity: 0;
+        transform: translateY(20px);
+        pointer-events: none;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toast-promo.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .toast-check {
+        color: #2ecc71;
+        font-weight: 700;
+    }
+
+    @@media (max-width: 992px) {
+        .mega-deal {
+            grid-template-columns: 1fr;
+        }
+
+        .mega-deal-img-wrap {
+            min-height: 240px;
+        }
+
+        .deals-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .promo-terms {
+            flex-direction: column;
+            text-align: center;
+            padding: 28px 20px;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .deals-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<section class="promotion-page dash">
+
+    <!-- Hero Header -->
+    <section class="promo-hero">
+        <p class="promo-hero-eyebrow">SPECIAL DEALS & PROMOTIONS · LIMITED TIME</p>
+        <h1>รถคัสตอมพร้อมขาย</h1>
+        <p class="promo-hero-desc">เลือกรถพร้อมขายตามชุดที่ระบุและเพิ่มลงตะกร้าได้ทันที</p>
+    </section>
+
+@if (Model.Coupons.Count > 0)
+{
+    <h2>โค้ดส่วนลดสินค้า</h2>
+    @foreach (var coupon in Model.Coupons) { <p><strong>@coupon.Code</strong> ลด @coupon.Percent.ToString("0.##")% · @(coupon.Category == "*" ? "ทุกหมวด" : coupon.Category)</p> }
+}
+<section class="deals-grid">
+@foreach (var deal in Model.Items)
+{
+    var stock = Model.Stock[deal.Id].SingleOrDefault(item => item.Unit == StoreSaleRules.ReadyBikeUnit && item.Size == "");
+    <article class="deal-card"><div class="deal-img-wrap"><img class="deal-img" src="@Url.Content("~/images/shop/" + deal.Image)" alt="@deal.Name" loading="lazy" /></div>
+        <div class="deal-body"><span class="deal-category">@deal.Category</span><h3 class="deal-title">@deal.Name</h3>
+            <p class="deal-desc">@deal.Description</p>
+            <ul class="deal-features">@foreach (var feature in deal.Features.Split('\n', StringSplitOptions.RemoveEmptyEntries)){ <li>@feature</li> }</ul>
+            @if (Model.PackageCodes.TryGetValue(deal.Id, out var code)) { <p>โค้ดแพ็กเกจ <strong>@code</strong></p> }
+            <div class="deal-footer"><div>
+                @if (deal.OriginalPrice > deal.Price) { <del>฿@deal.OriginalPrice.ToString("N2")</del> }
+                @if (deal.Price > 0) { <strong>฿@deal.Price.ToString("N2")</strong> }
+            </div>
+            <div class="promotion-purchase">
+                @if (stock is { QuantityOnHand: > 0 } && deal.Price > 0)
+                {
+                    <span class="dash-status is-positive">พร้อมขาย @stock.QuantityOnHand คัน</span>
+                    @if (ShopAccess.CanBuy(User))
+                    {
+                        <form asp-controller="Cart" asp-action="Change" method="post">
+                            <input asp-for="CartLineForm.StockId" id="promotion-sku-@deal.Id" type="hidden" value="@stock.Id" />
+                            <input asp-for="CartLineForm.Quantity" id="promotion-qty-@deal.Id" type="hidden" />
+                            <input asp-for="CartLineForm.Increment" id="promotion-increment-@deal.Id" type="hidden" />
+                            <button class="btn-claim" type="submit">เพิ่มลงตะกร้า</button>
+                        </form>
+                    }
+                    else if (User.Identity?.IsAuthenticated != true)
+                    {
+                        <a class="btn-claim" asp-controller="Account" asp-action="Login">เข้าสู่ระบบเพื่อซื้อ</a>
+                    }
+                }
+                else
+                {
+                    <span class="dash-status">ยังไม่มีรถพร้อมขาย</span>
+                }
+            </div></div>
+        </div>
+    </article>
+}
+</section>
+    <section class="promo-terms">
+        <div class="terms-text">
+            <h3>การสั่งซื้อรถพร้อมขาย</h3>
+            <p>
+                สมาชิกที่เข้าสู่ระบบซื้อได้ตามจำนวนคงเหลือ ราคาตามชุดที่แสดงในแต่ละรายการ ใช้สต็อกรถพร้อมขายและชำระผ่านระบบจำลอง
+            </p>
+        </div>
+        <div class="terms-action">
+            <a href="tel:0812345678" class="btn-contact-promo">สอบถามช่าง: 081-234-5678</a>
+        </div>
+    </section>
+
+    <!-- Toast Notification -->
+</section>

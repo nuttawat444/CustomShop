@@ -1,0 +1,478 @@
+@model CatalogPage
+@{
+    ViewData["Title"] = "สินค้าและอะไหล่แต่ง";
+    Layout = "_LayoutUser";
+}
+
+<style>
+    .product-page {
+        width: min(1200px, 100%);
+        margin: 0 auto;
+    }
+
+    /* Hero Banner */
+    .product-hero {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 260px;
+        overflow: hidden;
+        padding: clamp(30px, 5vw, 54px);
+        border-radius: 26px;
+        background:
+            radial-gradient(circle at 80% 30%, rgba(255, 90, 31, 0.32), transparent 45%),
+            linear-gradient(135deg, #181614 0%, #29241f 65%, #1c1a17 100%);
+        color: #fff;
+        margin-bottom: 34px;
+        box-shadow: 0 18px 40px rgba(26, 26, 26, 0.1);
+    }
+
+    .product-hero-eyebrow {
+        margin: 0 0 10px;
+        color: var(--brand-accent);
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+    }
+
+    .product-hero h1 {
+        margin: 0;
+        font-family: "Fraunces", Georgia, serif;
+        font-size: clamp(2rem, 4.5vw, 3.4rem);
+        font-weight: 700;
+        line-height: 1.1;
+    }
+
+    .product-hero-desc {
+        max-width: 600px;
+        margin: 12px 0 0;
+        color: #dcd3cb;
+        font-size: 1rem;
+        line-height: 1.65;
+    }
+
+    /* Filter Bar */
+    .storefront-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 28px;
+        align-items: center;
+    }
+
+    .filter-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 9px 20px;
+        border: 1px solid var(--theme-control-border);
+        border-radius: 999px;
+        background: var(--theme-surface);
+        color: var(--theme-muted);
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+    }
+
+    .filter-btn:hover {
+        background: var(--theme-raised);
+        color: var(--theme-ink);
+        border-color: var(--theme-accent);
+        transform: translateY(-1px);
+    }
+
+    .filter-btn.active {
+        background: var(--theme-accent-bg);
+        border-color: var(--theme-accent-bg);
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(255, 90, 31, 0.35);
+    }
+
+    /* Products Grid */
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 20px;
+        margin-bottom: 44px;
+    }
+
+    /* Product Card */
+    .item-card {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid var(--theme-line);
+        border-radius: 20px;
+        background: var(--theme-surface);
+        box-shadow: 0 8px 24px rgba(26, 26, 26, 0.05);
+        transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .item-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 18px 36px rgba(26, 26, 26, 0.12);
+    }
+
+    /* Image Container */
+    .item-art {
+        position: relative;
+        display: block;
+        height: 210px;
+        overflow: hidden;
+        background: var(--theme-raised);
+    }
+
+    .item-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .image-caption {
+        position: absolute;
+        right: 10px;
+        bottom: 10px;
+        z-index: 1;
+        padding: 2px 8px;
+        border-radius: 4px;
+        color: #fff;
+        background: #302a25;
+        font-size: 0.75rem;
+    }
+
+    .item-card:hover .item-img {
+        transform: scale(1.08);
+    }
+
+    .item-tag {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 2;
+        padding: 5px 11px;
+        border-radius: 999px;
+        background: rgba(20, 18, 15, 0.88);
+        backdrop-filter: blur(6px);
+        color: #fff;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .item-tag.accent {
+        background: var(--theme-accent-bg);
+    }
+
+    .item-tag.hot {
+        background: #d9381e;
+    }
+
+    .item-body {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        padding: 20px 18px 18px;
+    }
+
+    .item-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+    }
+
+    .item-category {
+        color: var(--theme-accent);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    .item-rating {
+        color: #f5a623;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .item-title {
+        margin: 0 0 8px;
+        color: var(--theme-ink);
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 1.22rem;
+        font-weight: 600;
+        line-height: 1.25;
+    }
+
+    .item-desc {
+        margin: 0 0 14px;
+        color: var(--theme-muted);
+        font-size: 0.85rem;
+        line-height: 1.55;
+        flex-grow: 1;
+    }
+
+    .item-features {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 16px;
+        font-size: 0.78rem;
+        color: var(--theme-muted);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .item-features li {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .item-features li::before {
+        content: "•";
+        color: var(--brand-accent);
+        font-size: 1.1rem;
+        line-height: 0;
+    }
+
+    .item-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 14px;
+        border-top: 1px solid var(--theme-line);
+        gap: 8px;
+    }
+
+    .item-price-wrap {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .item-original-price {
+        color: var(--theme-muted);
+        font-size: 0.72rem;
+        text-decoration: line-through;
+        margin-bottom: 1px;
+    }
+
+    .item-price {
+        color: var(--theme-ink);
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 1.28rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .btn-buy {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 9px 14px;
+        border: 1px solid var(--brand-accent);
+        border-radius: 999px;
+        background: var(--theme-accent-bg);
+        color: #fff;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.18s ease;
+        white-space: nowrap;
+    }
+
+    .btn-buy:hover {
+        background: var(--brand-dark);
+        border-color: var(--brand-dark);
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+    /* Benefits Section */
+    .benefits-strip {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+        padding: 32px 36px;
+        border-radius: 22px;
+        background: var(--theme-raised);
+        border: 1px solid #e7e2db;
+        margin-bottom: 20px;
+    }
+
+    .benefit-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    .benefit-icon {
+        display: grid;
+        width: 44px;
+        height: 44px;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--theme-surface);
+        color: var(--brand-accent);
+        font-size: 1.4rem;
+        box-shadow: 0 4px 12px rgba(26, 26, 26, 0.06);
+        flex-shrink: 0;
+    }
+
+    .benefit-text h4 {
+        margin: 0 0 4px;
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 1.05rem;
+        color: var(--theme-ink);
+    }
+
+    .benefit-text p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: var(--theme-muted);
+        line-height: 1.5;
+    }
+
+    /* Toast Notification */
+    .toast-msg {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 22px;
+        border-radius: 999px;
+        background: #1a1a1a;
+        color: #fff;
+        font-size: 0.92rem;
+        font-weight: 600;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+        opacity: 0;
+        transform: translateY(20px);
+        pointer-events: none;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toast-msg.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .toast-icon {
+        color: #2ecc71;
+        font-size: 1.1rem;
+    }
+
+    @@media (max-width: 1100px) {
+        .products-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 800px) {
+        .products-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .benefits-strip {
+            grid-template-columns: 1fr;
+            padding: 24px 20px;
+            gap: 18px;
+        }
+    }
+
+    @@media (max-width: 520px) {
+        .products-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<section class="product-page dash">
+
+    @if (ShopAccess.CanBuy(User)) { <partial name="_CustomerNavigation" /> }
+
+    <!-- Hero Header -->
+    <section class="product-hero">
+        <p class="product-hero-eyebrow">PARTS & RIDING GEAR · PREMIUM ACCESSORIES</p>
+        <h1>อะไหล่คัสตอม & หมวกกันน็อก</h1>
+        <p class="product-hero-desc">
+            ศูนย์รวมอะไหล่แต่งมอเตอร์ไซค์คัสตอมและหมวกกันน็อกระดับพรีเมียม คัดเกรดคุณภาพมาตรฐานระดับสากล สำหรับสายคาเฟ่ บ็อบเบอร์ สแครมเบลอร์ และคลาสสิกทุกสไตล์
+        </p>
+    </section>
+
+<div class="storefront-filters" aria-label="หมวดสินค้า">
+    <button type="button" class="filter-btn active" data-filter="all">ทั้งหมด (@Model.Items.Count)</button>
+    @foreach (var group in Model.Items.GroupBy(x => x.Category))
+    {
+        <button type="button" class="filter-btn" data-filter="@group.Key">@PartCategoryLabels.Label(group.Key) (@group.Count())</button>
+    }
+</div>
+<section class="products-grid" id="productGrid">
+@foreach (var item in Model.Items)
+{
+    var stock = Model.Stock[item.Id].ToList();
+    <article class="item-card" data-category="@item.Category">
+        <div class="item-art"><img src="@Url.Content("~/images/shop/" + item.Image)" alt="@item.Name" class="item-img" loading="lazy" />
+            @if (item.Category == "helmet") { <span class="image-caption">ภาพจำลอง</span> }
+        </div>
+        <div class="item-body">
+            <span class="item-category">@PartCategoryLabels.Label(item.Category)</span><h3 class="item-title">@item.Name</h3>
+            <p class="item-desc">@item.Description</p>
+            <ul class="item-features">@foreach (var feature in item.Features.Split('\n', StringSplitOptions.RemoveEmptyEntries)){ <li>@feature</li> }</ul>
+            <div class="item-footer"><div class="item-price-wrap">
+                @if (item.OriginalPrice > item.Price) { <span class="item-original-price">฿@item.OriginalPrice.ToString("N2")</span> }
+                <strong class="item-price">฿@item.Price.ToString("N2")</strong>
+            </div></div>
+            <p><span class="dash-status @(stock.Any(x => x.QuantityOnHand > 0) ? "is-positive" : "")">@(stock.Any(x => x.QuantityOnHand > 0) ? $"คงเหลือ {stock.Sum(x => x.QuantityOnHand)} ชิ้น" : "หมดสต็อก")</span></p>
+            @if (ShopAccess.CanBuy(User) && stock.Any(x => x.QuantityOnHand > 0))
+            {
+                <form class="customer-product-form" asp-controller="Cart" asp-action="Change" method="post">
+                    <label class="dash-field">ขนาด / รุ่น <select asp-for="CartLineForm.StockId" id="product-stock-@item.Id">@foreach (var variant in stock.Where(x => x.QuantityOnHand > 0))
+                    { <option value="@variant.Id">@variant.Size · เหลือ @variant.QuantityOnHand</option> }</select></label>
+                    <input asp-for="CartLineForm.Increment" id="product-increment-@item.Id" type="hidden" />
+                    <input asp-for="CartLineForm.Quantity" id="product-quantity-@item.Id" type="hidden" />
+                    <button class="dash-button is-primary">เพิ่มลงตะกร้า</button>
+                </form>
+            }
+            else if (User.Identity?.IsAuthenticated != true) { <a asp-controller="Account" asp-action="Login">เข้าสู่ระบบเพื่อซื้อสินค้า</a> }
+        </div>
+    </article>
+}
+</section>
+</section>
+
+@section Scripts {
+    <script>
+        // Category Filter Function
+        document.querySelectorAll('.filter-btn').forEach(function (button) {
+            button.addEventListener('click', function () {
+                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+
+                var filter = this.getAttribute('data-filter');
+                var items = document.querySelectorAll('#productGrid .item-card');
+
+                items.forEach(function (item) {
+                    if (filter === 'all' || item.getAttribute('data-category') === filter) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+    </script>
+}

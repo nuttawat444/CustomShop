@@ -1,0 +1,17 @@
+
+@model List<SaleOrder>
+@{ ViewData["Title"] = "ประวัติการสั่งซื้อ"; }
+<section class="dash">
+    <header class="dash-header"><div><p class="dash-kicker">CustomShop</p><h1>ประวัติการสั่งซื้อ</h1></div></header>
+    <partial name="_CustomerNavigation" />
+    <section class="dash-panel" aria-labelledby="orders-title">
+        <header class="dash-panel-heading"><h2 id="orders-title">คำสั่งซื้อของฉัน</h2><p>@Model.Count รายการ</p></header>
+        @if (Model.Count == 0) { <p class="dash-empty">ยังไม่มีคำสั่งซื้อ</p> }
+        @foreach (var order in Model)
+        {
+            <article class="dash-task"><div><h3>SHOP-@order.Id</h3><p class="dash-subtitle">@order.CreatedAt.AddHours(7).ToString("dd/MM/yyyy") · @(order.Fulfillment == "delivery" ? "จัดส่งฟรี" : "รับที่ร้าน")</p></div>
+                <div class="dash-actions"><strong>฿@order.Total.ToString("N2")</strong><a class="dash-button" asp-controller="Cart" asp-action="Receipt" asp-route-id="@order.Id">ดูใบเสร็จ</a></div>
+            </article>
+        }
+    </section>
+</section>

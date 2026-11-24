@@ -1,0 +1,70 @@
+@model BikeBuildViewModel
+@{
+    ViewData["Title"] = "ปรับแต่ง " + Model.Bike.Name;
+    var unavailable = Model.Slots.Any(group => group.Slot.MinQuantity > 0 && group.Options.Count == 0);
+}
+<section class="dash bike-builder">
+    <header class="dash-header">
+        <div><p class="dash-kicker">Custom Bike</p><h1>@Model.Bike.Name</h1>
+            <p class="dash-subtitle">เลือกรายการอะไหล่เพื่อให้ Accounting จัดทำใบประเมินราคา</p></div>
+        <a class="dash-button" asp-controller="Home" asp-action="CustomBike">กลับไปเลือกรุ่น</a>
+    </header>
+
+    @if (TempData["ErrorMessage"] is string error) { <p class="dash-notice is-error" role="alert">@error</p> }
+    @if (unavailable) { <p class="dash-notice is-error" role="alert">อะไหล่จำเป็นบางรายการยังไม่มีตัวเลือกที่เปิดแสดง</p> }
+
+    <section class="dash-panel bike-builder-summary" aria-labelledby="build-overview">
+        <img src="@Url.Content("~/images/shop/" + Model.Bike.Image)" alt="@Model.Bike.Name" />
+        <div><h2 id="build-overview">อะไหล่มาตรฐานและตัวเลือก</h2>
+            <p class="dash-subtitle">@Model.Bike.Description</p>
+            <p class="dash-subtitle">ราคาเริ่มต้น ฿@Model.Bike.Price.ToString("N2") · รายการที่มีป้ายจำเป็นต้องเลือกไว้</p>
+        </div>
+    </section>
+
+    <form asp-controller="Cart" asp-action="ConfigureBike" method="post">
+        <input asp-for="Form.BikeId" type="hidden" />
+        <input asp-for="Form.RequestId" type="hidden" />
+        <section class="dash-panel" aria-labelledby="build-parts">
+            <header class="dash-panel-heading"><h2 id="build-parts">เลือกชุดอะไหล่</h2></header>
+            @for (var index = 0; index < Model.Slots.Count; index++)
+            {
+                var group = Model.Slots[index];
+                var chosen = group.Options.SingleOrDefault(option => option.StockItemId == Model.Form.Lines[index].StockItemId);
+                <article class="bike-builder-row" data-build-row data-min="@group.Slot.MinQuantity">
+                    <div class="bike-builder-part">
+                        <img class="bike-builder-part-image" data-part-image
+                             src="@(chosen is null ? null : Url.Content("~/images/shop/" + chosen.Image))"
+                             alt="@(chosen?.PartName ?? "")" loading="lazy" hidden="@(chosen is null)" />
+                        <div><h3>@group.Slot.SlotName</h3>
+                            <span class="dash-status @(group.Slot.MinQuantity > 0 ? "is-positive" : "")">@(group.Slot.MinQuantity > 0 ? "จำเป็น" : "เลือกเพิ่มได้")</span>
+                            <p class="dash-subtitle" data-part-sku>@chosen?.Sku</p>
+                        </div>
+                    </div>
+                    <input asp-for="Form.Lines[index].SlotCode" type="hidden" />
+                    <label class="dash-field">อะไหล่
+                        <select asp-for="Form.Lines[index].StockItemId" data-part-select required="@(group.Slot.MinQuantity > 0)">
+                            @if (group.Slot.MinQuantity == 0) { <option value="">ไม่เลือก</option> }
+                            @foreach (var option in group.Options)
+                            {
+                                <option value="@option.StockItemId" data-sku="@option.Sku" data-name="@option.PartName"
+                                        data-image="@Url.Content("~/images/shop/" + option.Image)">@option.Label</option>
+                            }
+                        </select>
+                    </label>
+                    <label class="dash-field">จำนวน
+                        <input asp-for="Form.Lines[index].Quantity" data-part-quantity type="number" min="@group.Slot.MinQuantity"
+                               max="@group.Slot.MaxQuantity" step="1" required />
+                    </label>
+                </article>
+            }
+        </section>
+        <div class="dash-actions">
+            <button class="dash-button is-primary" disabled="@unavailable">ส่งคำขอประเมินราคา</button>
+            <p class="dash-subtitle">ระบบส่งรายการที่เลือกให้ Accounting ประเมินราคา แล้วส่งให้ Owner ตรวจ</p>
+        </div>
+    </form>
+</section>
+
+@section Scripts {
+    <script src="~/js/bike-build.js" asp-append-version="true"></script>
+}

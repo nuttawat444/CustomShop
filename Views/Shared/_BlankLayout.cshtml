@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CustomShop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <partial name="_ThemeAssets" />
+    <style>
+        :root {
+            --brand-dark: #1a1a1a;
+            --brand-accent: #ff5a1f;
+            --brand-light: #f7f5f2;
+            --border-color: #1a1a1a;
+            --footer-bg: #1a1a1a;
+            --footer-text: #f7f5f2;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            color: var(--theme-ink);
+            background-color: var(--theme-canvas);
+        }
+
+        h1, h2, h3, .navbar-brand {
+            font-family: 'Fraunces', serif;
+        }
+
+        .page-wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            border: 2px solid var(--border-color);
+            margin: 16px;
+        }
+
+        /* ===== HEADER / NAVBAR ===== */
+        .navbar {
+            border-bottom: 2px solid var(--border-color);
+            background-color: var(--theme-surface);
+        }
+
+        .navbar-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 24px;
+            flex-wrap: wrap;
+        }
+
+        .navbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-marks {
+            display: flex;
+            gap: 4px;
+        }
+
+        .logo-marks span {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--brand-dark);
+            display: inline-block;
+            background-color: var(--theme-surface);
+            transition: background-color 0.2s ease;
+        }
+
+        .navbar-logo:hover .logo-marks span {
+            background-color: var(--brand-accent);
+            border-color: var(--brand-accent);
+        }
+
+        .navbar-brand {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--theme-ink);
+            text-decoration: none;
+            letter-spacing: 0.5px;
+        }
+
+        .navbar-toggler {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 26px;
+            height: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .navbar-toggler span {
+            display: block;
+            height: 2px;
+            width: 100%;
+            background-color: var(--brand-dark);
+            border-radius: 1px;
+        }
+
+        .navbar-menu {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-item {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--theme-ink);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background-color: var(--brand-dark);
+            color: #ffffff;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .content {
+            flex: 1;
+            padding: 48px 32px;
+            background-color: var(--theme-canvas);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            border-top: 2px solid var(--border-color);
+            background-color: var(--footer-bg);
+            color: var(--footer-text);
+            text-align: center;
+            padding: 14px 24px;
+            font-size: 0.85rem;
+        }
+
+        .footer p {
+            margin: 0;
+        }
+
+        .footer a {
+            color: var(--footer-text);
+            text-decoration: underline;
+        }
+
+        .footer a:hover {
+            color: var(--brand-accent);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @@media (max-width: 768px) {
+            .navbar-toggler {
+                display: flex;
+            }
+
+            .navbar-menu {
+                display: none;
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+                gap: 4px;
+                margin-top: 12px;
+                border-top: 1px solid var(--border-color);
+                padding-top: 12px;
+            }
+
+            .navbar-menu.is-open {
+                display: flex;
+            }
+
+            .nav-item {
+                text-align: center;
+            }
+
+            .page-wrapper {
+                margin: 8px;
+            }
+
+            .content {
+                padding: 32px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+
+        <header class="navbar">
+            <div class="navbar-inner">
+                <a class="navbar-logo navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <span class="logo-marks">
+                        <span></span><span></span><span></span><span></span>
+                    </span>
+                    CustomShop
+                </a>
+
+                <button class="navbar-toggler" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="mainNav">
+                    <span></span><span></span><span></span>
+                </button>
+
+                <nav class="navbar-menu" id="mainNav">
+                    <a class="nav-item" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                    <a class="nav-item" asp-area="" asp-controller="Home" asp-action="Index">Custom Bike</a>
+                    <a class="nav-item" asp-area="" asp-controller="Home" asp-action="Index">Product</a>
+                    <a class="nav-item" asp-area="" asp-controller="Home" asp-action="Index">Promotion</a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="content" role="main">
+            @RenderBody()
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2569 CustomShop &mdash; <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a></p>
+        </footer>
+
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        (function () {
+            var toggler = document.querySelector('.navbar-toggler');
+            var menu = document.querySelector('.navbar-menu');
+            if (toggler && menu) {
+                toggler.addEventListener('click', function () {
+                    var open = menu.classList.toggle('is-open');
+                    toggler.setAttribute('aria-expanded', open ? 'true' : 'false');
+                });
+            }
+        })();
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

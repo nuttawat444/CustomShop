@@ -1,0 +1,234 @@
+/* =========================================================
+   Nuttawat_7324_L002 — cream / saddle-leather theme
+   ========================================================= */
+
+:root {
+    --cream: #F8F0DF;        /* page background */
+    --cream-deep: #EFE1C4;   /* nav / footer panels */
+    --paper: #FFFBF3;        /* content surface */
+    --ink: #3B2A1E;          /* primary text */
+    --ink-soft: #7A6A55;     /* secondary text */
+    --leather: #8A5A34;      /* brand / active accent */
+    --leather-dark: #6B4526; /* hover state */
+    --brass: #C0873F;        /* thin rules, small accents */
+    --line: rgba(59, 42, 30, 0.14);
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    box-sizing: border-box;
+    background: var(--cream);
+    color: var(--ink);
+    font-family: "Work Sans", Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+a {
+    color: var(--leather);
+}
+
+a:hover {
+    color: var(--leather-dark);
+}
+
+/* ---------- Page shell ---------- */
+
+.page-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* ---------- Navbar ---------- */
+
+.navbar {
+    background: var(--cream-deep);
+    border-bottom: 1px solid var(--line);
+}
+
+.navbar-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.navbar-brand {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: 0.2px;
+    color: var(--ink);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.navbar-brand:hover {
+    color: var(--leather);
+}
+
+.navbar-menu {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.nav-item {
+    position: relative;
+    display: inline-block;
+    padding: 8px 14px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    text-decoration: none;
+    border-radius: 4px;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+
+.nav-item::after {
+    content: "";
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 4px;
+    height: 2px;
+    background: var(--brass);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.18s ease;
+}
+
+.nav-item:hover {
+    color: var(--ink);
+    background: rgba(192, 135, 63, 0.12);
+}
+
+.nav-item:hover::after,
+.nav-item.active::after {
+    transform: scaleX(1);
+}
+
+.nav-item.active {
+    color: var(--leather-dark);
+    font-weight: 600;
+}
+
+/* Mobile nav toggle */
+
+.navbar-toggler {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.navbar-toggler span {
+    display: block;
+    height: 2px;
+    background: var(--ink);
+    border-radius: 2px;
+}
+
+/* ---------- Content ---------- */
+
+.content {
+    flex: 1;
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 40px 24px 56px;
+}
+
+.content > :first-child {
+    margin-top: 0;
+}
+
+/* ---------- Footer ---------- */
+
+.footer {
+    border-top: 1px solid var(--line);
+    background: var(--cream-deep);
+    text-align: center;
+    padding: 18px 24px;
+    font-size: 13px;
+    color: var(--ink-soft);
+}
+
+.footer p {
+    margin: 0;
+}
+
+.footer a {
+    color: var(--ink-soft);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.footer a:hover {
+    color: var(--leather-dark);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 720px) {
+    .navbar-toggler {
+        display: flex;
+    }
+
+    .navbar-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        background: var(--cream-deep);
+        border-bottom: 1px solid var(--line);
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.2s ease;
+    }
+
+    .navbar-menu.is-open {
+        max-height: 320px;
+    }
+
+    .navbar-inner {
+        position: relative;
+        flex-wrap: wrap;
+    }
+
+    .nav-item {
+        padding: 12px 24px;
+        border-radius: 0;
+    }
+
+    .nav-item::after {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nav-item,
+    .navbar-menu {
+        transition: none;
+    }
+}

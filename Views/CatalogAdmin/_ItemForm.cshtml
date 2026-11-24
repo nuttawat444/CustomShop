@@ -1,0 +1,48 @@
+@model CatalogAdminViewModel
+<section class="dash-panel" aria-labelledby="catalog-item-form">
+    <header class="dash-panel-heading"><h2 id="catalog-item-form">@(Model.ItemForm!.Id == 0 ? "เพิ่มรายการ" : "แก้ไขรายการ") · @CatalogAdminSections.Label(Model.Section)</h2></header>
+    <div class="dash-panel-body">
+        <form asp-controller="CatalogAdmin" asp-action="Save" method="post">
+            <div asp-validation-summary="All" class="catalog-admin-errors" role="alert"></div>
+            <input asp-for="ItemForm!.Id" type="hidden" />
+            <input asp-for="ItemForm!.Kind" type="hidden" />
+            <div class="dash-form">
+                <label class="dash-field">ชื่อรายการ<input asp-for="ItemForm!.Name" maxlength="220" required /></label>
+                <label class="dash-field">หมวดหมู่<input asp-for="ItemForm!.Category" maxlength="100" required /></label>
+                <label class="dash-field">ราคาขาย (บาท)<input asp-for="ItemForm!.Price" type="number" min="0" step=".01" required /></label>
+                <label class="dash-field">ราคาเดิม (บาท)<input asp-for="ItemForm!.OriginalPrice" type="number" min="0" step=".01" /></label>
+                <label class="dash-field">รูปภาพจากคลังร้าน
+                    <select asp-for="ItemForm!.Image" required>
+                        @foreach (var image in Model.Images) { <option value="@image">@image</option> }
+                    </select>
+                </label>
+                @if (Model.ItemForm.Kind == "Package")
+                {
+                    <p class="dash-subtitle">รถโปรโมชันใช้สต็อกนับเป็นคัน ปรับยอดได้จาก Warehouse Dashboard</p>
+                }
+                @if (Model.ItemForm.Kind == "Product")
+                {
+                    <p class="dash-subtitle">สำหรับหมวกกันน็อก ใช้หมวด <code>helmet</code> เพื่อสร้างสต็อกแยกตามไซซ์</p>
+                }
+            </div>
+            <div class="dash-form">
+                <label class="dash-field">รายละเอียด<textarea asp-for="ItemForm!.Description" rows="4" maxlength="5000"></textarea></label>
+                <label class="dash-field">คุณสมบัติ (บรรทัดละข้อ)<textarea asp-for="ItemForm!.Features" rows="4" maxlength="5000"></textarea></label>
+            </div>
+            <div class="dash-actions catalog-admin-settings">
+                <label><input asp-for="ItemForm!.Active" /> เปิดแสดงหน้าร้าน</label>
+                <label class="dash-field">ปักบนหน้า Home
+                    <select asp-for="ItemForm!.PinOnHome">
+                        <option value="false">ไม่ปัก</option>
+                        <option value="true">ปักบน Home</option>
+                    </select>
+                </label>
+            </div>
+            <p class="dash-subtitle catalog-admin-pin-hint">รายการที่ปักจะขึ้น Home เมื่อเปิดแสดงหน้าร้าน</p>
+            <div class="dash-actions">
+                <button class="dash-button is-primary">บันทึกรายการ</button>
+                <a class="dash-button" asp-controller="CatalogAdmin" asp-action="Index" asp-route-section="@Model.Section">ยกเลิก</a>
+            </div>
+        </form>
+    </div>
+</section>

@@ -1,0 +1,48 @@
+@model MockCheckoutViewModel
+@{ ViewData["Title"] = "ตรวจสอบและชำระเงิน"; }
+
+<section class="dash">
+    <header class="dash-header">
+        <div><p class="dash-kicker">CustomShop</p><h1>ตรวจสอบและชำระเงิน</h1></div>
+        <a class="dash-button" asp-controller="Cart" asp-action="Index">แก้ไขตะกร้า</a>
+    </header>
+    <div class="customer-grid">
+        <section class="dash-panel" aria-labelledby="checkout-items">
+            <header class="dash-panel-heading"><h2 id="checkout-items">สรุปคำสั่งซื้อ</h2></header>
+            @foreach (var row in Model.Review.Basket.Rows)
+            {
+                <article class="dash-task">
+                    <div><h3>@row.Name@(string.IsNullOrWhiteSpace(row.Size) ? "" : " · " + row.Size)</h3><p class="dash-subtitle">@row.Quantity @row.Unit × ฿@row.Price.ToString("N2")</p></div>
+                    <strong>฿@((row.Quantity * row.Price).ToString("N2"))</strong>
+                </article>
+            }
+            <div class="dash-panel-body">
+                <p>@(Model.Review.Fulfillment == "delivery" ? "จัดส่งฟรี" : "รับที่ร้าน") @Model.Review.Address</p>
+                <dl class="checkout-totals">
+                    <div><dt>ยอดสินค้า</dt><dd>฿@Model.Review.Price.Subtotal.ToString("N2")</dd></div>
+                    <div><dt>ส่วนลด @Model.Review.Price.Code</dt><dd>−฿@Model.Review.Price.Discount.ToString("N2")</dd></div>
+                    <div><dt>ยอดชำระ</dt><dd>฿@Model.Review.Price.Total.ToString("N2")</dd></div>
+                </dl>
+            </div>
+        </section>
+
+        <section class="dash-panel checkout-qr" aria-labelledby="checkout-qr-title">
+            <header class="dash-panel-heading"><h2 id="checkout-qr-title">สแกน QR</h2><span class="dash-status">ชำระเงินจำลอง</span></header>
+            <img class="checkout-qr-code" src="@Model.QrImage" width="220" height="220" alt="QR สำหรับการชำระเงินจำลอง" />
+            <div class="dash-panel-body">
+                <p class="checkout-amount">฿@Model.Review.Price.Total.ToString("N2")</p>
+                <p class="dash-subtitle">เลขอ้างอิง @Model.Reference</p>
+                <p>สแกนเพื่อดูยอดและเลขอ้างอิงของรายการทดสอบ แล้วกดปุ่มด้านล่างเพื่อจำลองผลชำระ</p>
+                <form asp-controller="Cart" asp-action="Checkout" method="post" class="customer-checkout">
+                    <input asp-for="CheckoutForm.Revision" type="hidden" />
+                    <input asp-for="CheckoutForm.Fulfillment" type="hidden" />
+                    <input asp-for="CheckoutForm.Address" type="hidden" />
+                    <input asp-for="CheckoutForm.Code" type="hidden" />
+                    <input asp-for="CheckoutForm.ExpectedTotal" type="hidden" />
+                    <button class="dash-button is-primary" name="@Html.NameFor(model => model.CheckoutForm.Result)" value="success">ยืนยันชำระเงินจำลอง</button>
+                    <button class="dash-button" name="@Html.NameFor(model => model.CheckoutForm.Result)" value="failure">จำลองชำระไม่สำเร็จ</button>
+                </form>
+            </div>
+        </section>
+    </div>
+</section>

@@ -1,0 +1,116 @@
+@model QuoteEstimateEditorViewModel
+@{
+    ViewData["Title"] = "จัดทำใบประเมิน";
+    var latest = Model.History.FirstOrDefault();
+}
+<section class="dash estimate-screen">
+    <header class="dash-header">
+        <div>
+            <h1>จัดทำใบประเมิน</h1>
+            <p class="dash-subtitle">@Model.Project.ProjectName · @Model.Project.CustomerName</p>
+        </div>
+        <a class="dash-button" asp-controller="Accounting" asp-action="Estimates">กลับคิวประเมิน</a>
+    </header>
+    @if (TempData["StatusMessage"] is string message) { <p class="dash-notice" role="status">@message</p> }
+    @if (latest?.ReturnReason is string reason)
+    {
+        <p class="dash-notice" role="status">Owner ส่งกลับให้แก้ไข — @reason</p>
+    }
+    <section class="dash-panel p-3 p-md-4" aria-labelledby="estimate-details">
+        <h2 id="estimate-details">รายละเอียดราคา</h2>
+        <p class="dash-subtitle text-break">เลขคำขอ @Model.Project.ProjectCode</p>
+        <form asp-controller="Accounting" asp-action="SaveEstimate" method="post" class="mt-4">
+            <div asp-validation-summary="All" class="dash-notice is-error estimate-validation mb-3" role="alert"></div>
+            <input asp-for="Form.ProjectCode" type="hidden" />
+            <input asp-for="Form.Revision" type="hidden" />
+            <input asp-for="Form.EditVersion" type="hidden" />
+            <fieldset class="mb-4">
+                <legend class="h5 mb-2">รายการอะไหล่</legend>
+                @if (Model.Parts.Count == 0)
+                {
+                    <p class="dash-subtitle">คำขอนี้ไม่มีรายการอะไหล่ ให้ใช้ช่องค่าตัวรถหรืองานเพิ่มเติมเพื่อระบุราคา</p>
+                }
+                else
+                {
+                    <p class="dash-subtitle mb-3">ราคาอ้างอิงจากหน้าร้าน ฿@Model.Project.Budget.ToString("N2")</p>
+                    <div class="estimate-list rounded-3">
+                        <div class="estimate-list-heading d-none d-md-block px-3 py-2" aria-hidden="true">
+                            <div class="row gx-3 align-items-center">
+                                <div class="col-md-6">อะไหล่</div>
+                                <div class="col-md-2 text-center">จำนวน</div>
+                                <div class="col-md-4">ราคาต่อหน่วย (บาท)</div>
+                            </div>
+                        </div>
+                        <ul class="list-unstyled mb-0">
+                            @for (var index = 0; index < Model.Parts.Count; index++)
+                            {
+                                var part = Model.Parts[index];
+                                <li class="estimate-list-item px-3 py-3">
+                                    <div class="row gx-3 gy-2 align-items-center">
+                                        <div class="col-9 col-md-6">
+                                            <strong class="d-block text-break" id="estimate-part-@index">@part.PartName</strong>
+                                            <p class="dash-subtitle small text-break">@part.Sku · @part.Variant</p>
+                                        </div>
+                                        <div class="col-3 col-md-2 text-center">
+                                            <span class="d-md-none d-block small estimate-muted">จำนวน</span>
+                                            <span class="visually-hidden d-none d-md-inline">จำนวน </span><span class="estimate-number">@part.Quantity</span>
+                                        </div>
+                                        <div class="col-12 col-md-4">
+                                            <input asp-for="Form.Lines[index].SlotCode" type="hidden" />
+                                            <label asp-for="Form.Lines[index].UnitPrice" class="form-label small d-md-none mb-1" id="estimate-price-@index">ราคาต่อหน่วย (บาท)</label>
+                                            <input asp-for="Form.Lines[index].UnitPrice" class="form-control text-end estimate-number" type="number"
+                                                   min="0" max="10000000" step=".01" required
+                                                   aria-labelledby="estimate-part-@index estimate-price-@index" />
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+            </fieldset>
+            <fieldset class="mb-4">
+                <legend class="h5 mb-3">ค่าใช้จ่ายและส่วนลด</legend>
+                <div class="row g-3">
+                    <div class="col-12 col-md-4 d-flex flex-column">
+                        <label asp-for="Form.LaborAmount" class="form-label fw-semibold"></label>
+                        <input asp-for="Form.LaborAmount" class="form-control text-end estimate-number mt-auto" type="number" min="0" max="10000000" step=".01" required />
+                    </div>
+                    <div class="col-12 col-md-4 d-flex flex-column">
+                        <label asp-for="Form.OtherAmount" class="form-label fw-semibold"></label>
+                        <input asp-for="Form.OtherAmount" class="form-control text-end estimate-number mt-auto" type="number" min="0" max="10000000" step=".01" required />
+                    </div>
+                    <div class="col-12 col-md-4 d-flex flex-column">
+                        <label asp-for="Form.DiscountAmount" class="form-label fw-semibold"></label>
+                        <input asp-for="Form.DiscountAmount" class="form-control text-end estimate-number mt-auto" type="number" min="0" max="10000000" step=".01" required />
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Form.Notes" class="form-label fw-semibold"></label>
+                        <textarea asp-for="Form.Notes" class="form-control" maxlength="1000" rows="3"></textarea>
+                    </div>
+                </div>
+            </fieldset>
+            <div class="estimate-actions d-grid d-sm-flex gap-2 justify-content-sm-end pt-3">
+                <button class="dash-button" type="submit" name="submit" value="false">บันทึกร่าง</button>
+                <button class="dash-button is-primary" type="submit" name="submit" value="true">ส่งให้ Owner ตรวจ</button>
+            </div>
+        </form>
+    </section>
+    @if (Model.History.Count > 0)
+    {
+        <section class="dash-panel p-3 p-md-4" aria-labelledby="estimate-history">
+            <h2 id="estimate-history">ประวัติใบประเมิน</h2>
+            <ul class="estimate-list rounded-3 list-unstyled mt-3 mb-0">
+                @foreach (var revision in Model.History)
+                {
+                    <li class="estimate-list-item px-3 py-3">
+                        <a asp-controller="Accounting" asp-action="EstimateDocument" asp-route-id="@Model.Project.ProjectCode" asp-route-revision="@revision.Revision">
+                            ฉบับ @revision.Revision · ฿@revision.TotalAmount.ToString("N2")
+                        </a>
+                        @if (revision.ReturnReason is not null) { <p class="dash-subtitle text-break">เหตุผลที่ส่งกลับ: @revision.ReturnReason</p> }
+                    </li>
+                }
+            </ul>
+        </section>
+    }
+</section>

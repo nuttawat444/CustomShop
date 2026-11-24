@@ -1,0 +1,53 @@
+@model QuoteEstimateDocumentViewModel
+@{
+    ViewData["Title"] = "ใบประเมินราคา Custom Bike";
+    var estimate = Model.Estimate;
+    var status = estimate.ReturnReason is not null ? "ส่งกลับแก้ไข" : estimate.ReviewedAt is not null
+        ? "ยืนยันแล้ว" : estimate.SubmittedAt is not null ? "รอ Owner ตรวจ" : "ฉบับร่าง";
+    var isOwner = User.IsInRole(AppRoles.Owner);
+}
+<section class="dash receipt-page">
+    <div class="dash-actions receipt-toolbar">
+        @if (isOwner) { <a class="dash-button" asp-controller="Owner" asp-action="Index">กลับ Dashboard</a> }
+        else { <a class="dash-button" asp-controller="Accounting" asp-action="Estimates">กลับคิวประเมิน</a> }
+        <button class="dash-button" type="button" onclick="window.print()">พิมพ์ใบประเมิน</button>
+    </div>
+    @if (TempData["StatusMessage"] is string message) { <p class="dash-notice receipt-toolbar" role="status">@message</p> }
+    <article class="shop-receipt">
+        <header>
+            <h1>ใบประเมินราคา Custom Bike</h1>
+            <p>เอกสารภายใน · @status · ฉบับ @estimate.Revision</p>
+            <dl class="receipt-customer">
+                <div><dt>เลขคำขอ</dt><dd>@Model.Project.ProjectCode</dd></div>
+                <div><dt>ชื่อลูกค้า</dt><dd>@Model.Project.CustomerName</dd></div>
+                <div><dt>รุ่นรถ</dt><dd>@Model.Project.ProjectName</dd></div>
+                <div><dt>วันที่จัดทำ</dt><dd>@estimate.UpdatedAt.AddHours(7).ToString("dd/MM/yyyy HH:mm") น.</dd></div>
+            </dl>
+        </header>
+        @if (Model.Lines.Count > 0)
+        {
+            <div class="dash-table-scroll">
+                <table class="dash-table receipt-lines">
+                    <thead><tr><th scope="col">อะไหล่</th><th scope="col">จำนวน</th><th scope="col">ราคาต่อหน่วย</th><th scope="col">ยอดรวม (บาท)</th></tr></thead>
+                    <tbody>
+                        @foreach (var line in Model.Lines)
+                        {
+                            <tr>
+                                <th scope="row">@line.PartName<br /><small>@line.Sku · @line.Variant</small></th>
+                                <td>@line.Quantity</td><td>@line.UnitPrice.ToString("N2")</td><td>@((line.Quantity * line.UnitPrice).ToString("N2"))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        <dl class="receipt-totals receipt-meta">
+            <div><dt>ค่าแรง</dt><dd>฿@estimate.LaborAmount.ToString("N2")</dd></div>
+            <div><dt>ค่าตัวรถหรืองานเพิ่มเติม</dt><dd>฿@estimate.OtherAmount.ToString("N2")</dd></div>
+            <div><dt>ส่วนลด</dt><dd>฿@estimate.DiscountAmount.ToString("N2")</dd></div>
+            <div><dt>ยอดสุทธิ</dt><dd><strong>฿@estimate.TotalAmount.ToString("N2")</strong></dd></div>
+        </dl>
+        @if (!string.IsNullOrEmpty(estimate.Notes)) { <p>หมายเหตุ: @estimate.Notes</p> }
+        @if (estimate.ReturnReason is not null) { <p>เหตุผลที่ส่งกลับ: @estimate.ReturnReason</p> }
+    </article>
+</section>

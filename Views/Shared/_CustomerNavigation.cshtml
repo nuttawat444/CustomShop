@@ -1,0 +1,11 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    string? Current(string name, string page) => controller == name && action == page ? "page" : null;
+}
+<nav class="dash-actions customer-nav" aria-label="ซื้อสินค้าและคำสั่งซื้อ">
+    <a class="dash-button" asp-controller="Home" asp-action="Product" aria-current="@Current("Home", "Product")">เลือกซื้อสินค้า</a>
+    <a class="dash-button" asp-controller="Cart" asp-action="Index" aria-current="@Current("Cart", "Index")">ตะกร้า</a>
+    <a class="dash-button" asp-controller="Cart" asp-action="History" aria-current="@Current("Cart", "History")">ประวัติการสั่งซื้อ</a>
+    <a class="dash-button" asp-controller="Cart" asp-action="Quotes" aria-current="@Current("Cart", "Quotes")">คำขอประเมินราคา</a>
+</nav>

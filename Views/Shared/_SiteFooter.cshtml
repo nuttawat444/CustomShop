@@ -1,0 +1,75 @@
+@{
+    var canBrowse = ShopAccess.CanViewStorefront(User);
+    var dashboard = ShopAccess.DashboardFor(User);
+}
+<footer class="site-footer">
+    <div class="site-footer-container">
+        <div class="site-footer-content">
+            <div class="site-footer-brand">
+                <a class="site-footer-logo" asp-controller="@ShopAccess.LandingController(User)" asp-action="Index">Custom<span>.</span>Shop</a>
+                <p>ออกแบบและประกอบมอเตอร์ไซค์คัสตอม พร้อมอะไหล่และอุปกรณ์แต่งสำหรับรถของคุณ</p>
+            </div>
+
+            <nav class="site-footer-navigation" aria-labelledby="site-footer-navigation">
+                <h2 id="site-footer-navigation">เมนูเว็บไซต์</h2>
+                <ul class="site-footer-links">
+                    @if (canBrowse)
+                    {
+                        <li><a asp-controller="Home" asp-action="Index">หน้าแรก</a></li>
+                    }
+                    @if (ShopAccess.CanViewCustomBikes(User))
+                    {
+                        <li><a asp-controller="Home" asp-action="CustomBike">Custom Bike</a></li>
+                    }
+                    @if (ShopAccess.CanViewProducts(User))
+                    {
+                        <li><a asp-controller="Home" asp-action="Product">สินค้าและอะไหล่</a></li>
+                    }
+                    @if (canBrowse)
+                    {
+                        <li><a asp-controller="Home" asp-action="Promotion">โปรโมชัน</a></li>
+                    }
+                    @if (ShopAccess.CanBuy(User))
+                    {
+                        <li><a asp-controller="Cart" asp-action="History">ประวัติการสั่งซื้อ</a></li>
+                        <li><a asp-controller="Cart" asp-action="Quotes">คำขอประเมินราคา</a></li>
+                    }
+                    @if (dashboard is not null)
+                    {
+                        <li><a asp-controller="@dashboard.Controller" asp-action="Index">Dashboard @dashboard.Label</a></li>
+                    }
+                </ul>
+            </nav>
+
+            <section class="site-footer-contact" aria-labelledby="site-footer-contact">
+                <h2 id="site-footer-contact">ติดต่อร้าน</h2>
+                <ul class="site-footer-links">
+                    <li>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24 11.36 11.36 0 0 0 3.57.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.36 11.36 0 0 0 .57 3.57 1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
+                        <a href="tel:0812345678">081-234-5678</a>
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                        <a href="mailto:contact@customshop.com">contact@customshop.com</a>
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+                        <address>123 ถนนสุขุมวิท แขวงคลองตัน เขตคลองเตย กรุงเทพฯ 10110</address>
+                    </li>
+                    <li>
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm.75 5v5.25l4.5 2.67-.75 1.23-5.25-3.15V7h1.5z"/></svg>
+                        <span>เปิดทุกวัน 09:00–19:00 น.</span>
+                    </li>
+                </ul>
+            </section>
+        </div>
+
+        <div class="site-footer-bottom">
+            <small>&copy; 2569 CustomShop. สงวนลิขสิทธิ์</small>
+            @if (canBrowse)
+            {
+                <a asp-controller="Home" asp-action="Privacy">นโยบายความเป็นส่วนตัว</a>
+            }
+        </div>
+    </div>
+</footer>

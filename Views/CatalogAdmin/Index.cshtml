@@ -1,0 +1,74 @@
+
+@model CatalogAdminViewModel
+@{
+    ViewData["Title"] = "จัดการแค็ตตาล็อกและส่วนลด";
+    var coupons = Model.Section == CatalogAdminSection.Coupons;
+    var sectionLabel = CatalogAdminSections.Label(Model.Section);
+}
+
+<section class="dash">
+    <header class="dash-header">
+        <div><p class="dash-kicker">Admin Dashboard</p><h1>จัดการแค็ตตาล็อกและส่วนลด</h1></div>
+        <a class="dash-button" asp-controller="Admin" asp-action="Index">กลับ Dashboard</a>
+    </header>
+    @if (TempData["StatusMessage"] is string message) { <p class="dash-notice" role="status">@message</p> }
+
+    <div class="catalog-admin-layout">
+        <nav class="dash-panel catalog-admin-sidebar" aria-label="หมวดจัดการแค็ตตาล็อก">
+            @foreach (var shelf in Enum.GetValues<CatalogAdminSection>())
+            {
+                <a class="dash-button" asp-controller="CatalogAdmin" asp-action="Index" asp-route-section="@shelf"
+                   aria-current="@(shelf == Model.Section ? "page" : null)">@CatalogAdminSections.Label(shelf)</a>
+            }
+        </nav>
+        <div class="catalog-admin-content">
+            @if (Model.ItemForm is not null) { <partial name="_ItemForm" model="Model" /> }
+            @if (Model.CouponForm is not null) { <partial name="_CouponForm" model="Model" /> }
+
+            <section class="dash-panel" aria-labelledby="catalog-admin-list">
+                <header class="dash-panel-heading">
+                    <div><h2 id="catalog-admin-list">@sectionLabel</h2>
+                        <p class="dash-subtitle">@(coupons ? Model.Coupons.Count : Model.Items.Count) รายการ</p>
+                    </div>
+                    <a class="dash-button is-primary" asp-controller="CatalogAdmin" asp-action="Index" asp-route-section="@Model.Section" asp-route-create="true">
+                        @(coupons ? "+ เพิ่มคูปอง" : "+ เพิ่มรายการ")
+                    </a>
+                </header>
+                @if (coupons)
+                {
+                    @if (Model.Coupons.Count == 0) { <p class="dash-empty">ยังไม่มีคูปอง</p> }
+                    @foreach (var coupon in Model.Coupons)
+                    {
+                        <article class="dash-task"><div><h3>@coupon.Code</h3>
+                            <p class="dash-subtitle">ลด @coupon.Percent.ToString("0.##")% · @(coupon.Category == "*" ? "ทุกหมวดสินค้า" : coupon.Category)</p>
+                        </div><div class="dash-actions">
+                            <span class="dash-status @(coupon.Active ? "is-positive" : "")">@(coupon.Active ? "เปิดใช้" : "ปิดใช้")</span>
+                            <a class="dash-button" asp-controller="CatalogAdmin" asp-action="Index" asp-route-section="@Model.Section" asp-route-couponCode="@coupon.Code">แก้ไข</a>
+                        </div></article>
+                    }
+                }
+                else
+                {
+                    @if (Model.Items.Count == 0) { <p class="dash-empty">ยังไม่มีรายการในหมวดนี้</p> }
+                    @foreach (var item in Model.Items)
+                    {
+                        <article class="dash-task catalog-admin-row">
+                            <div class="catalog-admin-item">
+                                <img src="@Url.Content("~/images/shop/" + item.Image)" width="72" height="54" alt="" loading="lazy" />
+                                <div><h3>@item.Name</h3><p class="dash-subtitle">@item.Category · @(item.Price > 0 ? $"฿{item.Price:N2}" : "รอตั้งราคา")</p></div>
+                            </div>
+                            <div class="dash-actions">
+                                <span class="dash-status @(item.Active ? "is-positive" : "")">@(item.Active ? "เปิดแสดง" : "ปิดแสดง")</span>
+                                @if (Model.PinnedItemIds.Contains(item.Id))
+                                {
+                                    <span class="dash-status @(item.Active ? "is-positive" : "")">@(item.Active ? "ปักบน Home" : "ปักไว้ · ซ่อนอยู่")</span>
+                                }
+                                <a class="dash-button" asp-controller="CatalogAdmin" asp-action="Index" asp-route-section="@Model.Section" asp-route-edit="@item.Id" aria-label="แก้ไข @item.Name">แก้ไข</a>
+                            </div>
+                        </article>
+                    }
+                }
+            </section>
+        </div>
+    </div>
+</section>

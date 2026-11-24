@@ -1,0 +1,211 @@
+@model AccountDashboardViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - จัดการผู้ใช้งาน</title>
+    <partial name="_ThemeAssets" />
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px 20px;
+            background-color: var(--theme-canvas);
+            color: var(--theme-ink);
+            font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .count {
+            margin: 8px 0 0;
+            color: var(--theme-muted);
+            font-size: 14px;
+        }
+
+        .logout-button {
+            padding: 10px 18px;
+            border: 0;
+            border-radius: 20px;
+            background: #222;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .header-actions, .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-button, .edit-button, .delete-button {
+            display: inline-block;
+            padding: 8px 12px;
+            border: 0;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font: inherit;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .add-button {
+            background: #16834a;
+        }
+
+        .edit-button {
+            background: #2563eb;
+        }
+
+        .delete-button {
+            background: #dc2626;
+        }
+
+        .status-message {
+            margin: 0 0 16px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            background: #e8f5e9;
+            color: var(--theme-green);
+        }
+
+        .card {
+            overflow-x: auto;
+            border-radius: 14px;
+            background: var(--theme-surface);
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--theme-line);
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background: #fafafa;
+            color: var(--theme-muted);
+            font-weight: 600;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .empty-state {
+            padding: 36px 20px;
+            color: var(--theme-muted);
+            text-align: center;
+        }
+
+        @@media (max-width: 650px) {
+            body {
+                padding: 20px 12px;
+            }
+
+            .page-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .header-actions {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <header class="page-header">
+            <div>
+                <h1>จัดการผู้ใช้งาน</h1>
+                <p class="count">บัญชีผู้ใช้งานทั้งหมด: @Model.Users.Count</p>
+            </div>
+            <div class="header-actions">
+                <a class="add-button" asp-controller="Account" asp-action="CreateUser">เพิ่มผู้ใช้</a>
+                <form asp-controller="Account" asp-action="Logout" method="post">
+                    <button class="logout-button" type="submit">ออกจากระบบ</button>
+                </form>
+            </div>
+        </header>
+
+        @if (TempData["StatusMessage"] is string statusMessage)
+        {
+            <p class="status-message" role="status">@statusMessage</p>
+        }
+
+        <section class="card" aria-label="รายชื่อผู้ใช้งาน">
+            @if (Model.Users.Count == 0)
+            {
+                <p class="empty-state">ยังไม่มีผู้ใช้งานในระบบ</p>
+            }
+            else
+            {
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ชื่อ</th>
+                            <th>ชื่อผู้ใช้</th>
+                            <th>อีเมล</th>
+                            <th>โทรศัพท์</th>
+                            <th>Role</th>
+                            <th>จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model.Users)
+                        {
+                            <tr>
+                                <td>@user.Name</td>
+                                <td>@user.Username</td>
+                                <td>@user.Email</td>
+                                <td>@(string.IsNullOrWhiteSpace(user.PhoneNumber) ? "-" : user.PhoneNumber)</td>
+                                <td>@user.Role</td>
+                                <td>
+                                    <div class="user-actions">
+                                        <a class="edit-button" asp-controller="Account" asp-action="EditUser" asp-route-id="@user.Id">แก้ไข</a>
+                                        <form asp-controller="Account" asp-action="DeleteUser" asp-route-id="@user.Id" method="post" onsubmit="return confirm('ต้องการลบผู้ใช้งานนี้หรือไม่?');">
+                                            <button class="delete-button" type="submit">ลบ</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </section>
+    </main>
+</body>
+</html>

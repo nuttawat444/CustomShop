@@ -1,0 +1,61 @@
+@model List<MemberOffer>
+@using System.Security.Claims
+@{
+    Layout = "_LayoutUser";
+    ViewData["Title"] = "บัญชีของฉัน";
+
+    var displayName = User.Identity?.Name ?? "สมาชิก";
+    var email = User.FindFirstValue(ClaimTypes.Email) ?? "ไม่พบอีเมล";
+    var role = User.FindFirstValue(ClaimTypes.Role) ?? "Member";
+}
+
+
+<section class="dash">
+    <header class="dash-header">
+        <div><p class="dash-kicker">CustomShop</p><h1>บัญชีของฉัน</h1><p class="dash-subtitle">@displayName</p></div>
+        <div class="dash-actions">
+            @if (ShopAccess.DashboardFor(User) is { } dashboard)
+            {
+                <a class="dash-button" asp-controller="@dashboard.Controller" asp-action="Index">@dashboard.Label Dashboard</a>
+            }
+            <form asp-controller="Account" asp-action="Logout" method="post"><button class="dash-button">ออกจากระบบ</button></form>
+        </div>
+    </header>
+    @if (ShopAccess.CanBuy(User))
+    {
+        <nav class="dash-actions" aria-label="บริการสำหรับสมาชิก">
+            <a class="dash-button is-primary" asp-controller="Cart" asp-action="History">ประวัติการสั่งซื้อ</a>
+            <a class="dash-button" asp-controller="Cart" asp-action="Quotes">คำขอประเมินราคา</a>
+            <a class="dash-button" asp-controller="Home" asp-action="Product">เลือกซื้อสินค้า</a>
+        </nav>
+    }
+    <section class="dash-panel" aria-labelledby="member-details">
+        <header class="dash-panel-heading"><h2 id="member-details">ข้อมูลบัญชี</h2></header>
+        <dl class="dash-profile"><div><dt>อีเมล</dt><dd>@email</dd></div><div><dt>สิทธิ์การใช้งาน</dt><dd>@role</dd></div></dl>
+    </section>
+    @if (ShopAccess.CanBuy(User))
+    {
+        <section class="dash-panel" aria-labelledby="member-offers">
+            <header class="dash-panel-heading"><h2 id="member-offers">โค้ดส่วนลดของฉัน</h2></header>
+            <div class="dash-panel-body">
+                @if (TempData["OfferMessage"] is string message) { <p class="dash-notice" role="status">@message</p> }
+                <form asp-controller="Account" asp-action="SaveOffer" method="post" class="dash-actions">
+                    <label class="dash-field">โค้ดจากหน้าโปรโมชัน <input name="code" maxlength="40" required /></label>
+                    <button class="dash-button" type="submit">บันทึกโค้ด</button>
+                </form>
+            </div>
+            @if (Model.Count == 0) { <p class="dash-empty">ยังไม่มีโค้ดที่บันทึก</p> }
+            @foreach (var offer in Model)
+            {
+                <article class="dash-task">
+                    <div><strong>@offer.Code</strong><p class="dash-subtitle">@offer.Description</p></div>
+                    @if (offer.PackageId.HasValue)
+                    {
+                        <form asp-controller="Cart" asp-action="RequestQuote" method="post"><input type="hidden" name="id" value="@offer.PackageId" /><button class="dash-button">ขอประเมินราคา</button></form>
+                    }
+                    else { <a class="dash-button" asp-controller="Cart" asp-action="Index">ใช้โค้ดที่ตะกร้า</a> }
+                </article>
+            }
+        </section>
+    }
+</section>

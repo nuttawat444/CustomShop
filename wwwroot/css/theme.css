@@ -1,0 +1,62 @@
+:root {
+    --site-content-max: 1200px;
+    --site-content-gutter: 32px;
+    color-scheme: light;
+    --theme-canvas: #f7f5f2;
+    --theme-surface: #ffffff;
+    --theme-raised: #f7f4ef;
+    --theme-ink: #1f1d1a;
+    --theme-muted: #645950;
+    --theme-line: #ddd4ca;
+    --theme-control-border: #9c8e81;
+    --theme-accent: #a83b12;
+    --theme-accent-bg: #a83b12;
+    --theme-accent-hover: #8c2e0d;
+    --theme-accent-soft: #fff1e8;
+    --theme-on-accent: #fff;
+    --theme-green: #245c43;
+    --theme-green-bg: #e5f2e9;
+    --theme-amber: #834207;
+    --theme-amber-bg: #fbecd8;
+    --theme-error: #9c2631;
+    --theme-error-bg: #fce9eb;
+    --theme-info: #244a91;
+    --theme-info-bg: #eaf1ff;
+}
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --theme-canvas: #151311;
+    --theme-surface: #221e1a;
+    --theme-raised: #302923;
+    --theme-ink: #fff4e8;
+    --theme-muted: #d5c7b9;
+    --theme-line: #4d433a;
+    --theme-control-border: #89796a;
+    --theme-accent: #ffad80;
+    --theme-accent-bg: #ac3d14;
+    --theme-accent-hover: #96320e;
+    --theme-accent-soft: #3e2a20;
+    --theme-green: #b2e7c8;
+    --theme-green-bg: #263d31;
+    --theme-amber: #f8cf92;
+    --theme-amber-bg: #49351f;
+    --theme-error: #ffc1ca;
+    --theme-error-bg: #4b252c;
+    --theme-info: #b8d3ff;
+    --theme-info-bg: #29374f;
+}
+body { background: var(--theme-canvas); color: var(--theme-ink); }
+a, a:hover { color: var(--theme-accent); }
+:focus-visible { outline-color: var(--theme-accent); }
+input::placeholder, textarea::placeholder { color: var(--theme-muted); opacity: 1; }
+[data-theme="dark"] .theme-icon-sun { display: block; }
+[data-theme="dark"] .theme-icon-moon { display: none; }
+[data-theme="dark"] .theme-toggle-btn { color: var(--theme-accent); }
+[data-theme="dark"] .nav-item { color: var(--theme-muted); }
+[data-theme="dark"] .nav-item:hover { color: var(--theme-accent); }
+[data-theme="dark"] .nav-item.active { color: var(--theme-ink); background: var(--theme-raised); }
+[data-theme="dark"] .navbar-toggler span { background-color: var(--theme-ink); }
+@media (max-width: 768px) {
+    :root { --site-content-gutter: 20px; }
+    [data-theme="dark"] .navbar-menu { background: var(--theme-surface); border-color: var(--theme-line); }
+}

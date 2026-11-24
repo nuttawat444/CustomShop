@@ -1,0 +1,35 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    string? Active(string target, string? page = null) =>
+        controller == target && (page == null || action == page) ? "active" : null;
+}
+@if (ShopAccess.CanViewStorefront(User))
+{
+    <a class="nav-item @Active("Home", "Index")" asp-controller="Home" asp-action="Index">Home</a>
+}
+@if (ShopAccess.CanViewCustomBikes(User))
+{
+    <a class="nav-item @Active("Home", "CustomBike")" asp-controller="Home" asp-action="CustomBike">Custom Bike</a>
+}
+@if (ShopAccess.CanViewProducts(User))
+{
+    <a class="nav-item @Active("Home", "Product")" asp-controller="Home" asp-action="Product">Product</a>
+}
+@if (ShopAccess.CanViewStorefront(User))
+{
+    <a class="nav-item @Active("Home", "Promotion")" asp-controller="Home" asp-action="Promotion">Promotion</a>
+}
+@if (ShopAccess.DashboardFor(User) is { } dashboard)
+{
+    <a class="nav-item @Active(dashboard.Controller)" asp-controller="@dashboard.Controller" asp-action="Index">@dashboard.Label</a>
+}
+
+@if (ShopAccess.CanBuy(User))
+{
+    <a class="nav-item @Active("Cart")" asp-controller="Cart" asp-action="Index" aria-label="ตะกร้าสินค้า" title="ตะกร้าสินค้า">
+        <svg class="nav-cart-icon" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M2 3h3l2.6 12h11.7l2.2-8H6" /><circle cx="9" cy="20" r="1" /><circle cx="18" cy="20" r="1" />
+        </svg>
+    </a>
+}

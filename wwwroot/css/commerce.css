@@ -1,0 +1,8 @@
+.commerce { max-width: 64rem; margin: 2rem auto; padding: clamp(1rem, 3vw, 2.5rem); background: var(--theme-surface); color: var(--theme-ink); border-radius: 1.25rem; }
+.commerce article, .commerce details { margin-block: 1rem; padding-block: 1rem; border-top: 1px solid var(--theme-line); }
+.commerce h2 { font-size: 1.2rem; }
+.commerce form { display: flex; align-items: end; flex-wrap: wrap; gap: .75rem; margin-block: 1rem; }
+.commerce label { display: grid; gap: .25rem; }
+.commerce input, .commerce select, .commerce textarea { max-width: 100%; padding: .45rem; background: var(--theme-raised); color: var(--theme-ink); border: 1px solid var(--theme-control-border); border-radius: .4rem; }
+.commerce button, .btn-detail { padding: .5rem 1rem; background: var(--theme-accent-bg); color: var(--theme-on-accent); border: 0; border-radius: .45rem; cursor: pointer; }
+.commerce [role=alert] { color: var(--theme-error); }

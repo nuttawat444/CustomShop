@@ -1,0 +1,24 @@
+@model CatalogAdminViewModel
+<section class="dash-panel" aria-labelledby="catalog-coupon-form">
+    <header class="dash-panel-heading"><h2 id="catalog-coupon-form">ตั้งค่าคูปองส่วนลด</h2></header>
+    <div class="dash-panel-body">
+        <form asp-controller="CatalogAdmin" asp-action="SaveCoupon" method="post">
+            <div asp-validation-summary="All" class="catalog-admin-errors" role="alert"></div>
+            <div class="dash-form">
+                <label class="dash-field">รหัสคูปอง<input asp-for="CouponForm!.Code" maxlength="40" required /></label>
+                <label class="dash-field">ส่วนลด (%)<input asp-for="CouponForm!.Percent" type="number" min=".01" max="100" step=".01" required /></label>
+                <label class="dash-field">หมวดสินค้า
+                    <select asp-for="CouponForm!.Category">
+                        <option value="*">ทุกหมวดสินค้า</option>
+                        @foreach (var category in Model.ProductCategories) { <option value="@category">@category</option> }
+                    </select>
+                </label>
+            </div>
+            <div class="dash-actions catalog-admin-settings"><label><input asp-for="CouponForm!.Active" /> เปิดใช้คูปอง</label></div>
+            <div class="dash-actions">
+                <button class="dash-button is-primary">บันทึกคูปอง</button>
+                <a class="dash-button" asp-controller="CatalogAdmin" asp-action="Index" asp-route-section="@Model.Section">ยกเลิก</a>
+            </div>
+        </form>
+    </div>
+</section>

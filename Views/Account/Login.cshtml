@@ -1,0 +1,615 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "เข้าสู่ระบบ - CustomShop";
+}
+@model LoginViewModel
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>เข้าสู่ระบบ - CustomShop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <partial name="_ThemeAssets" />
+    <style>
+        :root {
+            --brand-dark: #161513;
+            --brand-accent: #ff5a1f;
+            --brand-accent-hover: #e04b15;
+            --surface-bg: var(--theme-surface);
+            --input-bg: var(--theme-raised);
+            --border-color: var(--theme-control-border);
+            --text-main: var(--theme-ink);
+            --text-muted: var(--theme-muted);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--brand-dark);
+            color: var(--text-main);
+        }
+
+        .auth-container {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        /* ===== LEFT BRAND PANEL ===== */
+        .brand-panel {
+            flex: 1.1;
+            position: relative;
+            background:
+                linear-gradient(135deg, rgba(16, 14, 12, 0.95) 0%, rgba(26, 23, 20, 0.85) 60%, rgba(16, 14, 12, 0.92) 100%),
+                url("https://images.unsplash.com/photo-1515777315835-281b94c9589f?auto=format&fit=crop&w=1400&q=80") center / cover no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: clamp(32px, 5vw, 56px);
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        .brand-panel::before {
+            content: "";
+            position: absolute;
+            top: -20%;
+            left: -20%;
+            width: 70%;
+            height: 70%;
+            background: radial-gradient(circle, rgba(255, 90, 31, 0.18) 0%, transparent 70%);
+            filter: blur(50px);
+            pointer-events: none;
+        }
+
+        .brand-panel-top {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand-logo {
+            font-family: 'Fraunces', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-decoration: none;
+            letter-spacing: 0.3px;
+            display: inline-flex;
+            align-items: baseline;
+            gap: 2px;
+        }
+
+        .brand-logo span.accent-dot {
+            color: #ff9a73;
+            font-size: 2rem;
+            line-height: 0;
+        }
+
+        .btn-home-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: #f0ebe4;
+            text-decoration: none;
+            font-size: 0.86rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-home-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            transform: translateX(-2px);
+        }
+
+        .brand-panel-body {
+            position: relative;
+            z-index: 2;
+            max-width: 520px;
+            margin: 40px 0;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: rgba(255, 90, 31, 0.2);
+            border: 1px solid rgba(255, 90, 31, 0.35);
+            color: #ff9a73;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .brand-title {
+            font-family: 'Fraunces', serif;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 600;
+            line-height: 1.15;
+            color: #ffffff;
+            margin-bottom: 18px;
+        }
+
+        .brand-desc {
+            color: #cfc6bc;
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 30px;
+        }
+
+        .brand-features {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .brand-features li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.92rem;
+            color: #eae5de;
+        }
+
+        .brand-features li .check-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(255, 90, 31, 0.25);
+            color: #ff9a73;
+            display: grid;
+            place-items: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .brand-panel-bottom {
+            position: relative;
+            z-index: 2;
+            color: var(--theme-muted);
+            font-size: 0.82rem;
+        }
+
+        /* ===== RIGHT FORM PANEL ===== */
+        .form-panel {
+            flex: 0.9;
+            background: var(--theme-surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(32px, 5vw, 60px) clamp(24px, 4vw, 56px);
+            position: relative;
+        }
+
+        .form-wrapper {
+            width: 100%;
+            max-width: 410px;
+        }
+
+        .form-header {
+            margin-bottom: 32px;
+        }
+
+        .form-header h1 {
+            font-family: 'Fraunces', serif;
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: var(--theme-ink);
+            margin-bottom: 8px;
+            line-height: 1.15;
+        }
+
+        .form-header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Status and Alert Messages */
+        .alert-message {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            margin-bottom: 22px;
+            line-height: 1.5;
+        }
+
+        .alert-success {
+            background: var(--theme-green-bg);
+            border: 1px solid var(--theme-line);
+            color: var(--theme-green);
+        }
+
+        .alert-danger {
+            background: var(--theme-error-bg);
+            border: 1px solid var(--theme-line);
+            color: var(--theme-error);
+        }
+
+        .validation-summary-errors {
+            background: var(--theme-error-bg);
+            border: 1px solid var(--theme-line);
+            color: var(--theme-error);
+            border-radius: 14px;
+            padding: 12px 16px;
+            font-size: 0.88rem;
+            margin-bottom: 20px;
+        }
+
+        .validation-summary-errors ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--theme-ink);
+        }
+
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            color: var(--theme-muted);
+            pointer-events: none;
+            display: grid;
+            place-items: center;
+        }
+
+        .input-icon svg {
+            width: 19px;
+            height: 19px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 13px 16px 13px 46px;
+            border-radius: 14px;
+            border: 1.5px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-main);
+            font-size: 0.95rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            background: var(--theme-surface);
+            border-color: var(--brand-accent);
+            box-shadow: 0 0 0 4px rgba(255, 90, 31, 0.12);
+        }
+
+        .form-control::placeholder {
+            color: var(--theme-muted);
+        }
+
+        /* Password with toggle button */
+        .input-group-password .form-control {
+            padding-right: 48px;
+        }
+
+        .btn-toggle-password {
+            position: absolute;
+            right: 12px;
+            background: none;
+            border: none;
+            color: var(--theme-muted);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            transition: color 0.2s;
+        }
+
+        .btn-toggle-password:hover {
+            color: var(--text-main);
+        }
+
+        .btn-toggle-password svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .field-error {
+            display: block;
+            margin-top: 6px;
+            font-size: 0.82rem;
+            color: var(--theme-error);
+            font-weight: 500;
+        }
+
+        .form-options {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: 24px;
+        }
+
+        .link-forgot {
+            font-size: 0.88rem;
+            color: var(--theme-accent);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.15s;
+        }
+
+        .link-forgot:hover {
+            color: var(--theme-accent);
+            text-decoration: underline;
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            padding: 14px 24px;
+            border-radius: 999px;
+            border: none;
+            background: var(--theme-accent-bg);
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 22px rgba(255, 90, 31, 0.32);
+        }
+
+        .btn-submit:hover {
+            background: var(--theme-accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(255, 90, 31, 0.42);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .form-footer {
+            margin-top: 28px;
+            text-align: center;
+            font-size: 0.92rem;
+            color: var(--text-muted);
+        }
+
+        .link-register {
+            color: var(--theme-accent);
+            font-weight: 600;
+            text-decoration: none;
+            margin-left: 4px;
+        }
+
+        .link-register:hover {
+            text-decoration: underline;
+        }
+
+        /* Quick fill accounts for easy testing */
+        .test-accounts-box {
+            margin-top: 28px;
+            padding: 16px 18px;
+            border-radius: 14px;
+            background: var(--theme-raised);
+            border: 1px dashed var(--theme-line);
+            font-size: 0.82rem;
+        }
+
+        .test-accounts-title {
+            font-weight: 600;
+            color: var(--theme-muted);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .test-accounts-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .test-chip {
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: var(--theme-surface);
+            border: 1px solid var(--theme-line);
+            color: var(--theme-ink);
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+
+        .test-chip:hover {
+            border-color: var(--brand-accent);
+            color: var(--theme-accent);
+            background: var(--theme-accent-soft);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @@media (max-width: 900px) {
+            .auth-container {
+                flex-direction: column;
+            }
+
+            .brand-panel {
+                flex: none;
+                min-height: 280px;
+                padding: 28px 24px;
+            }
+
+            .brand-panel-body {
+                margin: 20px 0;
+            }
+
+            .brand-desc, .brand-features {
+                display: none;
+            }
+
+            .form-panel {
+                padding: 40px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+
+        <!-- LEFT BRAND PANEL -->
+        <div class="brand-panel">
+            <div class="brand-panel-top">
+                <a class="brand-logo" asp-controller="Home" asp-action="Index">
+                    Custom<span class="accent-dot">.</span>Shop
+                </a>
+                <a class="btn-home-link" asp-controller="Home" asp-action="Index">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    กลับสู่หน้าร้าน
+                </a>
+            </div>
+
+            <div class="brand-panel-bottom">
+                &copy; 2569 CustomShop. All rights reserved.
+            </div>
+        </div>
+
+        <!-- RIGHT FORM PANEL -->
+        <div class="form-panel">
+            <div class="form-wrapper">
+                <div class="form-header">
+                    <h1>เข้าสู่ระบบ</h1>
+                    <p>กรุณากรอกอีเมลและรหัสผ่านเพื่อเข้าใช้งาน</p>
+                </div>
+
+                @if (TempData["StatusMessage"] is string statusMsg)
+                {
+                    <div class="alert-message alert-success" role="status">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span>@statusMsg</span>
+                    </div>
+                }
+
+                <form asp-controller="Account" asp-action="Login" method="post" autocomplete="on">
+                    @Html.AntiForgeryToken()
+
+                    <div asp-validation-summary="ModelOnly" class="validation-summary-errors" role="alert"></div>
+
+                    <!-- Email Input -->
+                    <div class="form-group">
+                        <label class="form-label" asp-for="EmailUser">อีเมล (Email)</label>
+                        <div class="input-group">
+                            <span class="input-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
+                                </svg>
+                            </span>
+                            <input id="emailInput" class="form-control" asp-for="EmailUser" type="email" placeholder="example@customshop.com" required autocomplete="email" />
+                        </div>
+                        <span class="field-error" asp-validation-for="EmailUser"></span>
+                    </div>
+
+                    <!-- Password Input -->
+                    <div class="form-group">
+                        <label class="form-label" asp-for="Password">รหัสผ่าน (Password)</label>
+                        <div class="input-group input-group-password">
+                            <span class="input-icon">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
+                            </span>
+                            <input id="passwordInput" class="form-control" asp-for="Password" type="password" placeholder="••••••••" required autocomplete="current-password" />
+                            <button type="button" class="btn-toggle-password" id="togglePasswordBtn" aria-label="แสดงหรือซ่อนรหัสผ่าน">
+                                <svg id="eyeIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <span class="field-error" asp-validation-for="Password"></span>
+                    </div>
+
+                    <!-- Options: Forgot Password -->
+                    <div class="form-options">
+                        <a class="link-forgot" asp-controller="Account" asp-action="ForgotPassword">
+                            ลืมรหัสผ่าน?
+                        </a>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-submit">
+                        เข้าสู่ระบบ
+                    </button>
+
+                    <!-- Footer Link to Register -->
+                    <div class="form-footer">
+                        <span>ยังไม่มีบัญชีผู้ใช้?</span>
+                        <a class="link-register" asp-controller="Account" asp-action="Register">
+                            สมัครสมาชิกที่นี่
+                        </a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Toggle password visibility
+        var toggleBtn = document.getElementById('togglePasswordBtn');
+        var passInput = document.getElementById('passwordInput');
+        if (toggleBtn && passInput) {
+            toggleBtn.addEventListener('click', function () {
+                var isPassword = passInput.getAttribute('type') === 'password';
+                passInput.setAttribute('type', isPassword ? 'text' : 'password');
+                toggleBtn.setAttribute('aria-label', isPassword ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน');
+                toggleBtn.style.color = isPassword ? 'var(--brand-accent)' : '#9c9186';
+            });
+        }
+    </script>
+</body>
+</html>

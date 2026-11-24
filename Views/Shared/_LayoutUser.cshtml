@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CustomShop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <partial name="_ThemeAssets" />
+
+    <style>
+        :root {
+            --brand-dark: #1a1a1a;
+            --brand-accent: #ff5a1f;
+            --brand-light: #f7f5f2;
+            --border-color: #1a1a1a;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Work Sans', sans-serif;
+            color: var(--theme-ink);
+            background-color: var(--theme-canvas);
+        }
+
+        h1, h2, h3, .navbar-brand {
+            font-family: 'Fraunces', serif;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .page-wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ===== HEADER / NAVBAR ===== */
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background-color: var(--theme-surface);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--theme-line);
+            box-shadow: 0 2px 12px rgba(26, 26, 26, 0.06);
+        }
+
+        .navbar-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 40px;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--theme-ink);
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: baseline;
+            gap: 2px;
+        }
+
+        .navbar-brand span.accent-dot {
+            color: var(--brand-accent);
+            font-size: 1.6rem;
+            line-height: 0;
+        }
+
+        .navbar-toggler {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 26px;
+            height: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .navbar-toggler span {
+            display: block;
+            height: 2px;
+            width: 100%;
+            background-color: var(--brand-dark);
+            border-radius: 1px;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .navbar-menu {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            order: 2;
+        }
+
+        .navbar-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: 12px;
+            order: 3;
+        }
+
+        .account-nav-link {
+            display: grid;
+            width: 44px;
+            height: 44px;
+            place-items: center;
+            border: 1px solid var(--theme-line);
+            border-radius: 50%;
+            background: var(--theme-surface);
+            color: var(--theme-ink);
+            transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .account-nav-link:hover {
+            transform: translateY(-1px);
+            border-color: var(--brand-accent);
+            background: var(--theme-accent-bg);
+            color: #fff;
+        }
+
+        .account-nav-link:focus-visible {
+            outline: 3px solid rgba(255, 90, 31, 0.35);
+            outline-offset: 3px;
+        }
+
+        .account-nav-link svg {
+            width: 22px;
+            height: 22px;
+            fill: none;
+            stroke: currentColor;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 1.8;
+        }
+
+        .navbar-login-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 20px;
+            border-radius: 999px;
+            background: var(--theme-accent-bg);
+            color: #ffffff !important;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(255, 90, 31, 0.25);
+        }
+
+        .navbar-login-btn:hover {
+            background: var(--theme-accent-hover);
+            color: #ffffff !important;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(255, 90, 31, 0.38);
+        }
+
+        .navbar-login-btn svg {
+            width: 17px;
+            height: 17px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .nav-item {
+            position: relative;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--theme-ink);
+            padding: 10px 18px;
+            border-radius: 999px;
+            transition: color 0.2s ease, background-color 0.2s ease;
+        }
+
+        .nav-item::after {
+            content: "";
+            position: absolute;
+            left: 18px;
+            right: 18px;
+            bottom: 6px;
+            height: 2px;
+            background-color: var(--brand-accent);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.25s ease;
+        }
+
+        .nav-item:hover {
+            color: var(--brand-accent);
+        }
+
+        .nav-item:hover::after {
+            transform: scaleX(1);
+        }
+
+        .nav-item.active {
+            background-color: var(--brand-dark);
+            color: #ffffff;
+        }
+
+        .nav-item.active::after {
+            display: none;
+        }
+
+        .navbar-actions {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+            padding-left: 12px;
+        }
+
+        .btn-auth {
+            font-family: 'Work Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: var(--brand-accent);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-auth:hover {
+            background-color: var(--brand-dark);
+            transform: translateY(-1px);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .content {
+            flex: 1;
+            padding: 48px var(--site-content-gutter);
+            background-color: var(--theme-canvas);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @@media (max-width: 768px) {
+            .navbar-menu {
+                display: none;
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+                gap: 4px;
+                margin-top: 12px;
+                padding-top: 12px;
+                border-top: 1px solid var(--theme-line);
+                order: 3;
+            }
+
+            .navbar-menu.is-open {
+                display: flex;
+            }
+
+            .navbar-controls {
+                order: 2;
+            }
+
+            .navbar-toggler {
+                display: flex;
+            }
+
+            .nav-item {
+                text-align: center;
+            }
+
+            .nav-item::after {
+                display: none;
+            }
+
+            .navbar-actions {
+                margin-left: 0;
+                margin-top: 8px;
+                justify-content: center;
+            }
+
+            .btn-auth {
+                width: 100%;
+            }
+
+            .content {
+                padding-block: 32px;
+            }
+        }
+
+        /* ===== THEME TOGGLE BUTTON ===== */
+        .theme-toggle-btn {
+            display: grid;
+            place-items: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid var(--theme-line);
+            background: var(--theme-surface);
+            color: var(--theme-ink);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 0;
+            flex-shrink: 0;
+        }
+
+        .theme-toggle-btn:hover {
+            transform: translateY(-1px);
+            border-color: var(--brand-accent);
+            color: var(--brand-accent);
+            background: rgba(255, 90, 31, 0.08);
+        }
+
+        .theme-toggle-btn:focus-visible {
+            outline: 3px solid rgba(255, 90, 31, 0.35);
+            outline-offset: 3px;
+        }
+
+        .theme-toggle-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .theme-icon-sun {
+            display: none;
+        }
+        .theme-icon-moon {
+            display: block;
+        }
+
+    </style>
+    <link rel="stylesheet" href="~/css/commerce.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/footer.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="page-wrapper">
+
+            <header class="navbar">
+                <div class="navbar-inner">
+                    <a class="navbar-brand" asp-area="" asp-controller="@ShopAccess.LandingController(User)" asp-action="Index">
+                        Custom<span class="accent-dot">.</span>Shop
+                    </a>
+
+                    <nav class="navbar-menu" id="mainNav">
+                        <partial name="_MainNavigation" />
+                    </nav>
+
+                    <div class="navbar-controls">
+                        <button id="themeToggleBtn" data-theme-toggle aria-pressed="false" class="theme-toggle-btn" type="button" aria-label="สลับโหมดมืด/สว่าง" title="สลับโหมดมืด/สว่าง">
+                            <svg class="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                            </svg>
+                            <svg class="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="5"></circle>
+                                <line x1="12" y1="1" x2="12" y2="3"></line>
+                                <line x1="12" y1="21" x2="12" y2="23"></line>
+                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                <line x1="1" y1="12" x2="3" y2="12"></line>
+                                <line x1="21" y1="12" x2="23" y2="12"></line>
+                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                            </svg>
+                        </button>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <a class="account-nav-link"
+                               asp-area=""
+                               asp-controller="Account"
+                               asp-action="Index"
+                               aria-label="Member Area"
+                               title="@(User.Identity?.Name ?? "Member Area")">
+                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <circle cx="12" cy="8" r="3.5"></circle>
+                                    <path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"></path>
+                                </svg>
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="navbar-login-btn"
+                               asp-area=""
+                               asp-controller="Account"
+                               asp-action="Login">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                                    <polyline points="10 17 15 12 10 7"></polyline>
+                                    <line x1="15" y1="12" x2="3" y2="12"></line>
+                                </svg>
+                                <span>เข้าสู่ระบบ</span>
+                            </a>
+                        }
+                        <button class="navbar-toggler" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="mainNav">
+                            <span></span><span></span><span></span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+        <main class="content" role="main">
+            @RenderBody()
+        </main>
+
+        <partial name="_SiteFooter" />
+
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/dashboard.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        (function () {
+            var toggler = document.querySelector('.navbar-toggler');
+            var menu = document.querySelector('.navbar-menu');
+            if (toggler && menu) {
+                toggler.addEventListener('click', function () {
+                    var open = menu.classList.toggle('is-open');
+                    toggler.setAttribute('aria-expanded', open ? 'true' : 'false');
+                });
+            }
+
+        })();
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
