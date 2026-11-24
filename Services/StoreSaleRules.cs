@@ -14,4 +14,8 @@ public static class StoreSaleRules
 
     public static bool CanUseProductCoupon(BasketRow row, string category) =>
         row.Kind == "Product" && (category == "*" || row.Category == category);
+
+    public static decimal ProductCouponDiscount(IEnumerable<BasketRow> rows, string category, decimal percent) =>
+        Math.Round(rows.Where(row => CanUseProductCoupon(row, category))
+            .Sum(row => row.Price * row.Quantity) * percent / 100, 2, MidpointRounding.AwayFromZero);
 }

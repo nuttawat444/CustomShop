@@ -7,7 +7,7 @@ namespace Nuttawat_7324_L002.Services;
 public static class OwnerDepartmentQuery
 {
     public static IQueryable<OwnerDepartmentSummaryViewModel> Summaries(IQueryable<Role> roles) =>
-        roles.Where(role => role.Name.ToUpper() != "GUEST")
+        roles.Where(role => AppRoles.All.Contains(role.Name))
             .Select(role => new OwnerDepartmentSummaryViewModel
             {
                 DepartmentName = role.Name,

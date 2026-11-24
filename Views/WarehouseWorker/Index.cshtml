@@ -10,10 +10,6 @@
         <div><p class="dash-kicker">Warehouse Dashboard</p><h1>คลังสินค้า</h1>
             <p class="dash-subtitle">ดูยอดคงเหลือและติดตามงานจัดสินค้า</p></div>
         <div class="dash-actions">
-            @if (unlistedStock.Count > 0)
-            {
-                <button class="dash-button" type="button" aria-haspopup="dialog" data-dash-open="stock-list-existing">เปิดขาย SKU เดิม</button>
-            }
             <button class="dash-button is-primary" type="button" aria-haspopup="dialog" data-dash-open="stock-create">+ เพิ่มรายการเข้าคลัง</button>
         </div>
     </header>

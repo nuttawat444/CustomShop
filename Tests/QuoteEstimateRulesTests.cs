@@ -1,3 +1,9 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Nuttawat_7324_L002.Models;
 using Nuttawat_7324_L002.Services;
 using Nuttawat_7324_L002.ViewModels;
@@ -7,6 +13,37 @@ namespace CustomShop.Tests;
 
 public sealed class QuoteEstimateRulesTests
 {
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData(0, true)]
+    [InlineData(12, true)]
+    [InlineData(1000, true)]
+    [InlineData(1001, false)]
+    public void EstimateNotesAreOptionalAndLimitedToOneThousandCharacters(int? length, bool expectedValid)
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddControllers();
+        using var provider = services.BuildServiceProvider();
+        using var scope = provider.CreateScope();
+        var context = new ActionContext(
+            new DefaultHttpContext { RequestServices = scope.ServiceProvider },
+            new RouteData(),
+            new ActionDescriptor());
+        var form = new QuoteEstimateForm
+        {
+            ProjectCode = "PRJ-TEST",
+            Notes = length is int count ? new string('ก', count) : null
+        };
+        var validator = scope.ServiceProvider.GetRequiredService<IObjectModelValidator>();
+
+        validator.Validate(context, validationState: null, prefix: "Form", model: form);
+
+        Assert.Equal(expectedValid, context.ModelState.IsValid);
+        if (!expectedValid)
+            Assert.Single(context.ModelState["Form.Notes"]!.Errors);
+    }
+
     [Fact]
     public void TotalUsesQuantitiesAndFeesAndDeductsDiscount()
     {

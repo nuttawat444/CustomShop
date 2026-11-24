@@ -28,14 +28,31 @@ public class AccountController : Controller
     [Authorize]
     public async Task<IActionResult> Index()
     {
+        var profile = new MemberProfileViewModel();
+        if (!ShopAccess.CanBuy(User)) return View(profile);
+
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var memberCodes = MemberCouponCampaign.Codes.ToArray();
         var wallet = _dbContext.SavedOffers.AsNoTracking().Where(s => s.UserId == userId);
-        var offers = await (from saved in wallet join coupon in _dbContext.Coupons on saved.CouponId equals coupon.Id
-            where coupon.Active select new MemberOffer(coupon.Code, coupon.Category, null)).ToListAsync();
-        offers.AddRange(await (from saved in wallet join code in _dbContext.PackageCodes on saved.PackageCode equals code.Code
+        profile.Coupons = await _dbContext.Coupons.AsNoTracking()
+            .Where(coupon => coupon.Active && memberCodes.Contains(coupon.Code))
+            .OrderByDescending(coupon => coupon.Category == "*").ThenBy(coupon => coupon.Category)
+            .ThenByDescending(coupon => coupon.Percent).ThenBy(coupon => coupon.Code)
+            .Select(coupon => new MemberCouponViewModel
+            {
+                Code = coupon.Code,
+                Category = coupon.Category,
+                Percent = coupon.Percent,
+                Used = _dbContext.Orders.Any(order => order.UserId == userId &&
+                    order.CouponCode == coupon.Code && order.Discount > 0)
+            }).ToListAsync();
+        profile.SavedOffers = await (from saved in wallet join coupon in _dbContext.Coupons on saved.CouponId equals coupon.Id
+            where coupon.Active && !memberCodes.Contains(coupon.Code)
+            select new MemberOffer(coupon.Code, coupon.Category, null)).ToListAsync();
+        profile.SavedOffers.AddRange(await (from saved in wallet join code in _dbContext.PackageCodes on saved.PackageCode equals code.Code
             join item in _dbContext.Catalog on code.CatalogItemId equals item.Id where item.Active
             select new MemberOffer(code.Code, item.Name, item.Id)).ToListAsync());
-        return View(offers);
+        return View(profile);
     }
 
     [HttpPost, ValidateAntiForgeryToken, Authorize(Policy = ShopAccess.Buyer)]

@@ -129,7 +129,7 @@ public class CartController(CartService cart, Csi402dbContext db, BikeBuildServi
         try
         {
             await builds.RequestQuote(BuyerId, User.Identity!.Name!, form);
-            TempData["StatusMessage"] = "ส่งรายการปรับแต่งให้ Owner ประเมินราคาแล้ว";
+            TempData["StatusMessage"] = "ส่งคำขอให้ฝ่ายบัญชีประเมินราคาแล้ว";
             return RedirectToAction(nameof(Quotes));
         }
         catch (ShopException exception)

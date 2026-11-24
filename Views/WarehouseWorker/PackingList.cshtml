@@ -1,10 +1,65 @@
 @model OrderReceipt
-@{ ViewData["Title"] = "รายการจัดสินค้า"; }
-<section class="commerce"><h1>รายการจัดสินค้า #@Model.Order.Id</h1>
-<p>@(Model.Order.Fulfillment == "delivery" ? "จัดส่ง" : "รับที่ร้าน") @Model.Order.Address</p>
-@foreach (var line in Model.Lines)
-{
-    var isReadyBike = line.Size == StoreSaleRules.ReadyBikeUnit;
-    <article>@line.Name@(string.IsNullOrWhiteSpace(line.Size) || isReadyBike ? "" : " · " + line.Size) · @line.Quantity @(isReadyBike ? "คัน" : "ชิ้น")</article>
+@{
+    ViewData["Title"] = "รายการจัดสินค้า";
+    var isDelivery = Model.Order.Fulfillment == "delivery";
 }
-<a asp-action="Index">กลับคลังสินค้า</a></section>
+
+<section class="dash packing-list">
+    <header class="dash-header">
+        <div>
+            <h1>รายการจัดสินค้า</h1>
+            <p class="dash-subtitle">คำสั่งซื้อ #@Model.Order.Id</p>
+        </div>
+        <a class="dash-button" asp-controller="WarehouseWorker" asp-action="Index">กลับคลังสินค้า</a>
+    </header>
+
+    <dl class="dash-panel packing-list-fulfillment">
+        <div>
+            <dt>วิธีรับสินค้า</dt>
+            <dd><span class="dash-status">@(isDelivery ? "จัดส่ง" : "รับที่ร้าน")</span></dd>
+        </div>
+        @if (isDelivery && !string.IsNullOrWhiteSpace(Model.Order.Address))
+        {
+            <div>
+                <dt>ที่อยู่จัดส่ง</dt>
+                <dd class="packing-list-address">@Model.Order.Address</dd>
+            </div>
+        }
+    </dl>
+
+    <section class="dash-panel" aria-labelledby="packing-list-items">
+        <header class="dash-panel-heading">
+            <h2 id="packing-list-items">สินค้าที่ต้องจัด</h2>
+            <p>@Model.Lines.Count รายการ</p>
+        </header>
+        @if (Model.Lines.Count == 0)
+        {
+            <p class="dash-empty">ไม่มีรายการสินค้าในคำสั่งซื้อนี้</p>
+        }
+        else
+        {
+            <div class="dash-table-scroll" role="region" aria-labelledby="packing-list-items" tabindex="0">
+                <table class="dash-table packing-list-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">สินค้า</th>
+                            <th scope="col">ขนาด</th>
+                            <th scope="col" class="dash-align-end">จำนวน</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var line in Model.Lines)
+                        {
+                            var isReadyBike = line.Size == StoreSaleRules.ReadyBikeUnit;
+                            <tr>
+                                <th scope="row">@line.Name</th>
+                                <td>@(isReadyBike || string.IsNullOrWhiteSpace(line.Size) ? "—" : line.Size)</td>
+                                <td class="dash-align-end packing-list-quantity">@line.Quantity @(isReadyBike ? "คัน" : "ชิ้น")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</section>

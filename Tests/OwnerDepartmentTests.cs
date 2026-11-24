@@ -10,11 +10,13 @@ public class OwnerDepartmentTests
     [InlineData("Guest")]
     [InlineData("guest")]
     [InlineData("GUEST")]
-    public void SummariesExcludeGuestAndKeepOtherRolesAndTheirActiveHeadCounts(string guestName)
+    [InlineData("User")]
+    [InlineData("user")]
+    public void SummariesExcludeNonStaffRolesAndKeepDepartmentsAndTheirActiveHeadCounts(string nonStaffRole)
     {
         var roles = new[]
         {
-            new Role { Name = guestName, Staff = [new Staff { Status = "active" }] },
+            new Role { Name = nonStaffRole, Staff = [new Staff { Status = "active" }] },
             new Role { Name = AppRoles.Mechanic, Staff = [new Staff { Status = "active" }, new Staff { Status = "suspended" }] },
             new Role { Name = AppRoles.Owner }
         };

@@ -18,8 +18,8 @@ public sealed class QuoteEstimateForm
     public decimal OtherAmount { get; set; }
     [BindRequired, Display(Name = "ส่วนลด (บาท)")]
     public decimal DiscountAmount { get; set; }
-    [Display(Name = "หมายเหตุ"), StringLength(1000)]
-    public string Notes { get; set; } = string.Empty;
+    [Display(Name = "หมายเหตุ (ไม่บังคับ)"), StringLength(1000)]
+    public string? Notes { get; set; }
     public List<QuoteEstimatePriceForm> Lines { get; set; } = [];
 }
 

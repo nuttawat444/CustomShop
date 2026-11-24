@@ -3,6 +3,12 @@ const { readFileSync } = require("node:fs");
 const { join } = require("node:path");
 const { test } = require("node:test");
 
+test("a submitted bike build confirms that accounting receives the request", () => {
+    const controller = readFileSync(join(__dirname, "../Controllers/CartController.cs"), "utf8");
+
+    assert.match(controller, /await builds\.RequestQuote\([^;]+;\s*TempData\["StatusMessage"\] = "ส่งคำขอให้ฝ่ายบัญชีประเมินราคาแล้ว";\s*return RedirectToAction\(nameof\(Quotes\)\);/);
+});
+
 test("the quote form keeps a right-aligned submit button without adjacent instructions", () => {
     const view = readFileSync(join(__dirname, "../Views/Cart/ConfigureBike.cshtml"), "utf8");
     const css = readFileSync(join(__dirname, "../wwwroot/css/dashboard.css"), "utf8");

@@ -7,6 +7,30 @@ namespace CustomShop.Tests;
 public class StoreSaleRulesTests
 {
     [Fact]
+    public void MemberCouponDiscountCountsOnlyEligibleProducts()
+    {
+        BasketRow[] rows =
+        [
+            new(1, "Helmet", "", 1000m, 2, 2, "helmet"),
+            new(2, "Seat", "", 700m, 1, 1, "parts"),
+            new(3, "Ready bike", "", 5000m, 1, 1, "helmet", Kind: "Package")
+        ];
+
+        Assert.Equal(240m, StoreSaleRules.ProductCouponDiscount(rows, "helmet", 12m));
+        Assert.Equal(270m, StoreSaleRules.ProductCouponDiscount(rows, "*", 10m));
+        Assert.Equal(0m, StoreSaleRules.ProductCouponDiscount(rows, "exhaust", 8m));
+    }
+
+    [Theory]
+    [InlineData("SHOP10", true, false)]
+    [InlineData("SHOP10", false, true)]
+    [InlineData("LEGACY", true, true)]
+    public void CouponReuseFollowsMemberCampaignRules(string code, bool previouslyUsed, bool expected)
+    {
+        Assert.Equal(expected, MemberCouponCampaign.CanRedeem(code, previouslyUsed));
+    }
+
+    [Fact]
     public void SaleStockIncludesReadyBikesAndPartsButExcludesHiddenOrUnpricedItemsAndLegacyPackages()
     {
         var catalog = new[]

@@ -74,7 +74,7 @@ public sealed class CartService(Csi402dbContext db)
         await tx.CommitAsync();
     }
 
-    private async Task<CartPrice> Price(List<BasketRow> rows, string? code)
+    private async Task<CartPrice> Price(int buyer, List<BasketRow> rows, string? code)
     {
         var total = rows.Sum(x => x.Quantity * x.Price);
         decimal discount = 0;
@@ -83,8 +83,10 @@ public sealed class CartService(Csi402dbContext db)
         {
             var coupon = await db.Coupons.SingleOrDefaultAsync(x => x.Code == couponCode && x.Active);
             if (coupon == null) throw new ShopException("โค้ดส่วนลดไม่สามารถใช้งานได้");
-            var eligible = rows.Where(row => StoreSaleRules.CanUseProductCoupon(row, coupon.Category));
-            discount = Math.Round(eligible.Sum(x => x.Price * x.Quantity) * coupon.Percent / 100, 2, MidpointRounding.AwayFromZero);
+            if (!MemberCouponCampaign.CanRedeem(coupon.Code, previouslyUsed: true) &&
+                await db.Orders.AnyAsync(order => order.UserId == buyer && order.CouponCode == coupon.Code && order.Discount > 0))
+                throw new ShopException("บัญชีนี้ใช้โค้ดส่วนลดนี้ไปแล้ว");
+            discount = StoreSaleRules.ProductCouponDiscount(rows, coupon.Category, coupon.Percent);
             if (discount <= 0) throw new ShopException("โค้ดนี้ใช้ไม่ได้กับสินค้าในตะกร้า");
             couponCode = coupon.Code;
         }
@@ -97,7 +99,7 @@ public sealed class CartService(Csi402dbContext db)
         if (basket.Revision != revision || basket.Rows.Count == 0 || basket.Rows.Any(row => row.Quantity > row.Available))
             throw new ShopException("กรุณาตรวจสอบสินค้าและจำนวนในตะกร้า");
         address = DeliveryAddress(fulfillment, address);
-        return new CheckoutReview(basket, await Price(basket.Rows, code), fulfillment, address);
+        return new CheckoutReview(basket, await Price(buyer, basket.Rows, code), fulfillment, address);
     }
 
     private static string DeliveryAddress(string fulfillment, string? address)
@@ -121,7 +123,7 @@ public sealed class CartService(Csi402dbContext db)
         var rows = await Rows(buyer).ToListAsync();
         if (rows.Count == 0 || rows.Any(x => x.Available < x.Quantity))
             throw new ShopException("ตะกร้าว่างหรือสินค้าที่เลือกมีจำนวนไม่พอ");
-        var quote = await Price(rows, code);
+        var quote = await Price(buyer, rows, code);
         if (quote.Total != expectedTotal)
             throw new ShopException("ราคาหรือส่วนลดเปลี่ยนแปลง กรุณาตรวจสอบยอดอีกครั้ง");
         var (total, discount, couponCode) = quote;
