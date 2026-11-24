@@ -167,10 +167,51 @@
 .bike-builder-summary img { width: min(100%, 15rem); aspect-ratio: 3/2; object-fit: cover; border-radius: .7rem; }
 .bike-builder-summary > div { flex: 1 1 16rem; }
 .bike-builder-actions { justify-content: flex-end; }
-.bike-builder-row { display: grid; grid-template-columns: minmax(12rem, 1fr) minmax(12rem, 1.7fr) 6rem; gap: .9rem; align-items: center; border-top: 1px solid var(--dash-line); padding: .9rem 1rem; }
+.bike-builder-row { display: grid; grid-template-columns: minmax(10rem, 1fr) minmax(0, 2fr) 5rem; gap: 1rem; align-items: start; border-top: 1px solid var(--dash-line); padding: 1rem; }
 .bike-builder-part { display: flex; align-items: center; gap: .65rem; min-width: 0; }
 .bike-builder-part h3 { font-size: .96rem; margin: 0 0 .25rem; }
-.bike-builder-part-image { width: 4.4rem; height: 3.4rem; object-fit: cover; border-radius: .5rem; }
+.bike-builder-part [data-part-sku] { overflow-wrap: anywhere; }
+.bike-builder-part-image { flex: none; width: 4.4rem; height: 3.4rem; object-fit: cover; border-radius: .5rem; }
+.bike-builder-picker { min-width: 0; }
+.bike-builder-picker summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    padding: .65rem .85rem;
+    border: 1px solid var(--theme-control-border);
+    border-radius: .65rem;
+    cursor: pointer;
+    list-style: none;
+}
+.bike-builder-picker summary::-webkit-details-marker { display: none; }
+.bike-builder-picker[open] summary,
+.bike-builder-picker summary:hover { border-color: var(--dash-accent); }
+.bike-builder-selection { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem .65rem; min-width: 0; overflow-wrap: anywhere; }
+.bike-builder-selection-label { flex-basis: 100%; color: var(--dash-muted); font-size: .78rem; }
+.bike-builder-price { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 650; }
+.bike-builder-chevron { flex: none; width: .55rem; height: .55rem; margin-inline-end: .2rem; border: solid currentColor; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.bike-builder-picker[open] .bike-builder-chevron { transform: rotate(225deg); }
+.bike-builder-options { display: grid; gap: .45rem; min-width: 0; border: 0; padding: 0; margin: .75rem 0 0; }
+.bike-builder-options legend { padding: 0 0 .35rem; color: var(--dash-muted); font-size: .8rem; }
+.bike-builder-option {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: .65rem;
+    min-height: 2.75rem;
+    padding: .55rem .7rem;
+    border: 1px solid var(--dash-line);
+    border-radius: .55rem;
+    cursor: pointer;
+}
+.bike-builder-option:hover,
+.bike-builder-option:has(input:checked) { border-color: var(--dash-accent); }
+.bike-builder-option input { margin: 0; accent-color: var(--dash-accent); }
+.bike-builder-option-name { overflow-wrap: anywhere; }
+.bike-builder-option-name small { display: block; color: var(--dash-muted); }
+.bike-builder-picker summary:focus-visible,
+.bike-builder-option:has(input:focus-visible) { outline: 2px solid var(--dash-accent); outline-offset: 2px; }
 .selected-bike-parts { flex-basis: 100%; width: 100%; border: 1px solid var(--dash-line); border-radius: .65rem; padding: .7rem .9rem; }
 .selected-bike-parts summary { color: var(--dash-accent); font-weight: 650; cursor: pointer; }
 .selected-bike-parts ul { margin: .6rem 0 0; padding-inline-start: 1.2rem; }
@@ -178,4 +219,7 @@
 @media (max-width: 660px) {
     .bike-builder-row { grid-template-columns: minmax(0, 1fr) 5rem; }
     .bike-builder-part { grid-column: 1 / -1; }
+    .bike-builder-option { grid-template-columns: auto minmax(0, 1fr); }
+    .bike-builder-option .bike-builder-price { grid-column: 2; }
+    .bike-builder-actions .dash-button { width: 100%; }
 }

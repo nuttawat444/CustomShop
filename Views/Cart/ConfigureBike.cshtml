@@ -30,7 +30,7 @@
             {
                 var group = Model.Slots[index];
                 var chosen = group.Options.SingleOrDefault(option => option.StockItemId == Model.Form.Lines[index].StockItemId);
-                <article class="bike-builder-row" data-build-row data-min="@group.Slot.MinQuantity">
+                <article class="bike-builder-row" data-build-row>
                     <div class="bike-builder-part">
                         <img class="bike-builder-part-image" data-part-image
                              src="@(chosen is null ? null : Url.Content("~/images/shop/" + chosen.Image))"
@@ -41,16 +41,43 @@
                         </div>
                     </div>
                     <input asp-for="Form.Lines[index].SlotCode" type="hidden" />
-                    <label class="dash-field">อะไหล่
-                        <select asp-for="Form.Lines[index].StockItemId" data-part-select required="@(group.Slot.MinQuantity > 0)">
-                            @if (group.Slot.MinQuantity == 0) { <option value="">ไม่เลือก</option> }
+                    <details class="bike-builder-picker">
+                        <summary>
+                            <span class="bike-builder-selection">
+                                <span class="bike-builder-selection-label">อะไหล่</span>
+                                <strong data-part-summary>@(chosen?.PartName ?? (group.Slot.MinQuantity == 0 ? "ไม่เลือก" : "ไม่มีอะไหล่ให้เลือก"))</strong>
+                                <span class="bike-builder-price" data-part-summary-price>@(chosen is null ? "" : $"฿{chosen.UnitPrice:N2}")</span>
+                            </span>
+                            <span class="bike-builder-chevron" aria-hidden="true"></span>
+                        </summary>
+                        <fieldset class="bike-builder-options">
+                            <legend>เลือก@group.Slot.SlotName</legend>
+                            @if (group.Slot.MinQuantity == 0)
+                            {
+                                <label class="bike-builder-option">
+                                    <input asp-for="Form.Lines[index].StockItemId" type="radio" id="part-@(index)-none"
+                                           value="" checked="@(chosen is null)" data-part-choice data-name="ไม่เลือก" />
+                                    <span>ไม่เลือก</span>
+                                </label>
+                            }
                             @foreach (var option in group.Options)
                             {
-                                <option value="@option.StockItemId" data-sku="@option.Sku" data-name="@option.PartName"
-                                        data-image="@Url.Content("~/images/shop/" + option.Image)">@option.Label</option>
+                                <label class="bike-builder-option">
+                                    <input asp-for="Form.Lines[index].StockItemId" type="radio" id="part-@(index)-@option.StockItemId"
+                                           value="@option.StockItemId" required="@(group.Slot.MinQuantity > 0)"
+                                           data-part-choice data-sku="@option.Sku" data-name="@option.PartName"
+                                           data-price="฿@option.UnitPrice.ToString("N2")" data-image="@Url.Content("~/images/shop/" + option.Image)" />
+                                    <span class="bike-builder-option-name">@option.PartName
+                                        @if (!string.IsNullOrWhiteSpace(option.Variant))
+                                        {
+                                            <small>@option.Variant</small>
+                                        }
+                                    </span>
+                                    <span class="bike-builder-price">฿@option.UnitPrice.ToString("N2")</span>
+                                </label>
                             }
-                        </select>
-                    </label>
+                        </fieldset>
+                    </details>
                     <label class="dash-field">จำนวน
                         <input asp-for="Form.Lines[index].Quantity" data-part-quantity type="number" min="@group.Slot.MinQuantity"
                                max="@group.Slot.MaxQuantity" step="1" required />
