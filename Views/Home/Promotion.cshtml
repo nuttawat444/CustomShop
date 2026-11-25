@@ -461,6 +461,136 @@
         font-weight: 700;
     }
 
+    /* Coupon cards */
+    .promo-coupons-section {
+        margin-bottom: 40px;
+    }
+
+    .promo-coupons-heading {
+        margin-bottom: 16px;
+    }
+
+    .promo-coupons-heading h2 {
+        margin: 0;
+        color: var(--theme-ink);
+        font-family: "Fraunces", Georgia, serif;
+        font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+    }
+
+    .promo-coupons-heading p {
+        margin: 5px 0 0;
+        color: var(--theme-muted);
+        font-size: .92rem;
+    }
+
+    .promo-coupons-controls {
+        display: grid;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        place-items: center;
+        border-color: var(--theme-line);
+        color: var(--theme-ink);
+        background: var(--theme-surface);
+        box-shadow: 0 3px 12px rgba(26, 26, 26, .16);
+    }
+
+    .promo-coupons-controls:hover:not(:disabled) {
+        border-color: var(--brand-accent);
+        background: var(--theme-accent-bg);
+        color: #fff;
+    }
+
+    .promo-coupons-controls:disabled {
+        opacity: .4;
+    }
+
+    .promo-coupons-track {
+        display: flex;
+        gap: 14px;
+        overflow-x: auto;
+        padding: 4px 2px 18px;
+        scroll-behavior: smooth;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        overscroll-behavior-inline: contain;
+    }
+
+    .promo-coupons-track::-webkit-scrollbar {
+        display: none;
+    }
+
+    .promo-coupon-slide {
+        flex: 0 0 min(82%, 340px);
+        scroll-snap-align: start;
+    }
+
+    .promo-coupon-card {
+        overflow: hidden;
+        border: 1px solid var(--theme-line);
+        border-top: 3px solid var(--brand-accent);
+        border-radius: 16px;
+        background: var(--theme-surface);
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .promo-coupon-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 28px rgba(26, 26, 26, .1) !important;
+    }
+
+    .promo-coupon-card .card-body {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 20px;
+    }
+
+    .promo-coupon-discount {
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: var(--theme-accent-bg);
+        color: #fff;
+        font-size: .88rem;
+        font-weight: 700;
+    }
+
+    .promo-coupon-code {
+        display: block;
+        width: 100%;
+        padding: 11px 14px;
+        border: 1px dashed color-mix(in srgb, var(--brand-accent) 55%, var(--theme-line));
+        border-radius: 10px;
+        background: var(--theme-raised);
+        color: var(--theme-ink);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 1.08rem;
+        font-weight: 750;
+        letter-spacing: .1em;
+        overflow-wrap: anywhere;
+    }
+
+    .promo-coupon-category {
+        margin: auto 0 0;
+        color: var(--theme-muted);
+        font-size: .88rem;
+    }
+
+    @@media (min-width: 576px) {
+        .promo-coupons-carousel {
+            display: grid;
+            grid-template-columns: 40px minmax(0, 1fr) 40px;
+            align-items: center;
+            gap: 12px;
+        }
+        .promo-coupon-slide { flex-basis: 48%; }
+    }
+
+    @@media (min-width: 992px) {
+        .promo-coupon-slide { flex-basis: 32%; }
+    }
+
     @@media (max-width: 992px) {
         .mega-deal {
             grid-template-columns: 1fr;
@@ -499,8 +629,41 @@
 
 @if (Model.Coupons.Count > 0)
 {
-    <h2>โค้ดส่วนลดสินค้า</h2>
-    @foreach (var coupon in Model.Coupons) { <p><strong>@coupon.Code</strong> ลด @coupon.Percent.ToString("0.##")% · @(coupon.Category == "*" ? "ทุกหมวด" : coupon.Category)</p> }
+    <section class="promo-coupons-section" aria-labelledby="promo-coupons-title">
+        <div class="promo-coupons-heading">
+            <div>
+                <h2 id="promo-coupons-title">โค้ดส่วนลดสินค้า</h2>
+                <p>เลือกโค้ดที่ตรงกับหมวดสินค้าที่ต้องการ</p>
+            </div>
+        </div>
+        <div class="promo-coupons-carousel">
+            <button class="btn btn-outline-secondary rounded-circle promo-coupons-controls d-none d-sm-grid" type="button"
+                    data-coupon-direction="-1" aria-label="เลื่อนโค้ดส่วนลดไปทางซ้าย" disabled>
+                <span aria-hidden="true">&#8249;</span>
+            </button>
+            <div class="promo-coupons-track" data-coupon-slider tabindex="0" role="region" aria-label="รายการโค้ดส่วนลด">
+                @foreach (var coupon in Model.Coupons)
+                {
+                    <div class="promo-coupon-slide">
+                        <article class="card promo-coupon-card h-100 shadow-sm">
+                            <div class="card-body">
+                                <span class="promo-coupon-discount">ลด @coupon.Percent.ToString("0.##")%</span>
+                                <code class="promo-coupon-code">@coupon.Code</code>
+                                <p class="promo-coupon-category mb-0">
+                                    <span class="fw-semibold">ใช้ได้กับ</span>
+                                    @(coupon.Category == "*" ? "ทุกหมวดสินค้า" : coupon.Category)
+                                </p>
+                            </div>
+                        </article>
+                    </div>
+                }
+            </div>
+            <button class="btn btn-outline-secondary rounded-circle promo-coupons-controls d-none d-sm-grid" type="button"
+                    data-coupon-direction="1" aria-label="เลื่อนโค้ดส่วนลดไปทางขวา">
+                <span aria-hidden="true">&#8250;</span>
+            </button>
+        </div>
+    </section>
 }
 <section class="deals-grid">
 @foreach (var deal in Model.Items)
@@ -561,3 +724,7 @@
 </section>
 
 <partial name="_CatalogPreview" model="Model.Items" />
+
+@section Scripts {
+    <script src="~/js/promotion-coupons.js" asp-append-version="true"></script>
+}
